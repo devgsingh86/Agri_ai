@@ -1,0 +1,50 @@
+[
+  {
+    "id": "TASK-001",
+    "title": "Set up frontend project (React, Vite/Next.js)",
+    "description": "Initialize frontend with modern UI framework and basic routing.",
+    "status": "not-started"
+  },
+  {
+    "id": "TASK-002",
+    "title": "Implement login page UI (email/password, Google)",
+    "description": "Create a modern login form with email/password fields and Google sign-in button.",
+    "status": "not-started"
+  },
+  {
+    "id": "TASK-003",
+    "title": "Set up backend project (Node.js/Express or Next.js API)",
+    "description": "Initialize backend with API endpoints for auth and user profile.",
+    "status": "not-started"
+  },
+  {
+    "id": "TASK-004",
+    "title": "Implement email/password authentication API",
+    "description": "Create POST /api/auth/login endpoint using Passport.js.",
+    "status": "not-started"
+  },
+  {
+    "id": "TASK-005",
+    "title": "Implement Google OAuth authentication API",
+    "description": "Create Google OAuth flow with /api/auth/google and /api/auth/google/callback endpoints.",
+    "status": "not-started"
+  },
+  {
+    "id": "TASK-006",
+    "title": "Implement session management (JWT or cookie)",
+    "description": "Store user session after login for local development.",
+    "status": "not-started"
+  },
+  {
+    "id": "TASK-007",
+    "title": "Implement user profile API and page",
+    "description": "Create /api/user/profile endpoint and frontend profile page to display user info.",
+    "status": "not-started"
+  },
+  {
+    "id": "TASK-008",
+    "title": "Add error handling and basic tests",
+    "description": "Handle login errors and add basic unit tests for auth and profile endpoints.",
+    "status": "not-started"
+  }
+]

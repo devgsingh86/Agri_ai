@@ -1,0 +1,32 @@
+{
+  "fieldMapping": {
+    "Theme": { "label": "theme", "titlePrefix": "[Theme]" },
+    "Epic": { "label": "epic", "titlePrefix": "[Epic]" },
+    "Story": { "label": "story", "titlePrefix": "[Story]" },
+    "Task": { "label": "task", "titlePrefix": "[Task]" },
+    "Status": "Status",
+    "Priority": "Priority",
+    "Story Points": "Story Points",
+    "Type": "type",
+    "Dependencies": "linked_issues",
+    "Security Considerations": "security",
+    "Deployment Scope": "deployment_scope",
+    "AI Agent": "ai-agent"
+  },
+  "labelingConvention": {
+    "theme": "theme",
+    "epic": "epic",
+    "story": "story",
+    "task": "task",
+    "security": "security",
+    "infra": "infra",
+    "blocked": "blocked",
+    "local": "local",
+    "staging": "staging",
+    "production": "production"
+  },
+  "hierarchy": "parent/child via references and labels",
+  "aiAgentLabel": "ai-agent:BacklogManager",
+  "projectNumber": 3,
+  "owner": "devgsingh86"
+}
