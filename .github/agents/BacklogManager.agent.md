@@ -2,7 +2,7 @@
 name: BacklogManager
 description: "Manages product backlog in IDE via docs/backlog.md, facilitates feature brainstorming, requirement refinement, and pipeline triggers."
 target: vscode
-model: GPT-4.1 (copilot)
+model: GPT-5 mini (copilot)
 tools: [execute, read, edit, search, web, agent, todo]
 handoffs:
   - label: "Start automated pipeline"
@@ -49,6 +49,8 @@ Each backlog item in `docs/backlog.md` includes:
 - **Dependencies**: Related backlog items
 - **Security Considerations**: Security requirements or concerns
 - **Deployment Scope**: Local / Staging / Production (triggers DevOps only if beyond local)
+- **Sprint**: Sprint number or name (e.g., `Sprint-3`, `2026-Q1-W2`) — set during sprint planning
+- **WIP Limit**: Max 3 items "In Pipeline" simultaneously across the team
 - **Pipeline Status**: Current stage in automated pipeline
 - **Created**: Date added to backlog
 - **Updated**: Last modification date

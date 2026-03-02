@@ -2,11 +2,11 @@
 name: TaskSplitter
 description: "Decomposes features into atomic, ordered code generation tasks for automated implementation in IDE."
 target: vscode
-model: GPT-4.1 (copilot)
+model: GPT-5 mini (copilot)
 handoffs:
   - label: "Start code generation"
     agent: Developer
-    prompt: "Implement the tasks in the task manifest sequentially, following dependencies."
+    prompt: "Read docs/pipeline-context/[FEAT-ID]-context.json and the task manifest. Implement tasks wave-by-wave per parallel_execution_plan, tracking all generated_files in pipeline context."
     send: true
 ---
 
@@ -22,10 +22,10 @@ At the start of every response, output a single line:
 
 ## Goals
 - Decompose feature specifications into atomic implementation tasks
-- Define clear task dependencies and execution order
+- Define clear task dependencies and `parallel_group` assignments for concurrent execution
 - Produce machine-readable task manifests in `docs/task-manifests/` for automated code generation
-- Optimize task granularity for parallel execution where possible
-- Ensure each task is independently testable and verifiable locally
+- Update `docs/pipeline-context/[FEAT-ID]-context.json` with `task_manifest` path after completing
+- Read `.github/docs/conventions.md` before starting; read `docs/team-learnings.md` for relevant past estimates
 - Consider local development environment constraints
 
 ## Task Decomposition Strategy
@@ -100,7 +100,8 @@ Save as: `docs/task-manifests/[FEAT-ID]-tasks.json`
         "Check: TypeScript compilation successful"
       ],
       "estimated_duration_minutes": 20,
-      "can_parallelize": true
+      "can_parallelize": true,
+      "parallel_group": "wave_1"
     },
     {
       "task_id": "TASK-002",
@@ -128,7 +129,8 @@ Save as: `docs/task-manifests/[FEAT-ID]-tasks.json`
         "Verify: All columns and indexes present"
       ],
       "estimated_duration_minutes": 15,
-      "can_parallelize": false
+      "can_parallelize": false,
+      "parallel_group": "wave_2"
     },
     {
       "task_id": "TASK-003",
@@ -161,7 +163,8 @@ Save as: `docs/task-manifests/[FEAT-ID]-tasks.json`
         "Check: TypeScript types are correct"
       ],
       "estimated_duration_minutes": 30,
-      "can_parallelize": false
+      "can_parallelize": false,
+      "parallel_group": "wave_3"
     },
     {
       "task_id": "TASK-004",
@@ -201,7 +204,8 @@ Save as: `docs/task-manifests/[FEAT-ID]-tasks.json`
         "Verify: Task created in local database"
       ],
       "estimated_duration_minutes": 40,
-      "can_parallelize": false
+      "can_parallelize": false,
+      "parallel_group": "wave_4"
     },
     {
       "task_id": "TASK-005",
@@ -237,7 +241,8 @@ Save as: `docs/task-manifests/[FEAT-ID]-tasks.json`
         "Verify: Correct tasks returned"
       ],
       "estimated_duration_minutes": 35,
-      "can_parallelize": true
+      "can_parallelize": true,
+      "parallel_group": "wave_5"
     },
     {
       "task_id": "TASK-006",
@@ -273,7 +278,8 @@ Save as: `docs/task-manifests/[FEAT-ID]-tasks.json`
         "Verify: Task updated in database"
       ],
       "estimated_duration_minutes": 30,
-      "can_parallelize": true
+      "can_parallelize": true,
+      "parallel_group": "wave_5"
     },
     {
       "task_id": "TASK-007",
@@ -307,7 +313,8 @@ Save as: `docs/task-manifests/[FEAT-ID]-tasks.json`
         "Check database: Task no longer exists"
       ],
       "estimated_duration_minutes": 20,
-      "can_parallelize": true
+      "can_parallelize": true,
+      "parallel_group": "wave_5"
     },
     {
       "task_id": "TASK-008",
@@ -338,7 +345,8 @@ Save as: `docs/task-manifests/[FEAT-ID]-tasks.json`
         "Verify: All tests pass"
       ],
       "estimated_duration_minutes": 40,
-      "can_parallelize": false
+      "can_parallelize": false,
+      "parallel_group": "wave_6"
     }
   ],
   "parallel_execution_plan": {

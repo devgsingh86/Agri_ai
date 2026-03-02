@@ -6,7 +6,7 @@ model: GPT-5 mini (copilot)
 handoffs:
   - label: "Define API contracts"
     agent: SolutionArchitect
-    prompt: "Using the analyzed requirements, define detailed API contracts, data models, and integration specifications."
+    prompt: "Read docs/pipeline-context/[FEAT-ID]-context.json. Design architecture and output OpenAPI spec to docs/api-specs/[FEAT-ID]-openapi.yaml. Update pipeline context."
     send: true
 ---
 
@@ -22,11 +22,39 @@ At the start of every response, output a single line:
 
 ## Goals
 - Parse and analyze product requirements from backlog items in `docs/backlog.md`
+- **Initialize `docs/pipeline-context/[FEAT-ID]-context.json`** (schema in `.github/docs/conventions.md`) — this is the first pipeline stage
+- Read `docs/team-learnings.md` for relevant past patterns before analyzing
 - Identify ambiguities and gaps requiring clarification
 - Extract functional and non-functional requirements
-- Define clear interfaces and contracts for automated implementation
-- Produce machine-readable specifications in `docs/requirement-specs/` for downstream pipeline stages
-- Determine deployment scope (local vs. infrastructure)
+- Produce machine-readable specifications in `docs/requirement-specs/` for downstream agents
+- Determine deployment scope (local vs. infrastructure) and record in pipeline context
+
+## Pipeline Context Initialization
+
+Before any analysis, create `docs/pipeline-context/[FEAT-ID]-context.json`:
+```json
+{
+  "feat_id": "[FEAT-ID]",
+  "version": 1,
+  "created_at": "[ISO8601]",
+  "updated_at": "[ISO8601]",
+  "git_branch": "feat/[FEAT-ID]-[kebab-title]",
+  "deployment_scope": "local",
+  "requires_devops": false,
+  "stages_completed": [],
+  "requirement_spec": "docs/requirement-specs/[FEAT-ID]-spec.md",
+  "openapi_spec": null,
+  "architecture_notes": null,
+  "task_manifest": null,
+  "generated_files": [],
+  "security_findings": [],
+  "test_results": { "unit_coverage": 0, "integration_pass": false },
+  "api_contract_validated": false,
+  "retrospective": null
+}
+```
+
+After completing analysis, add `"requirement_analysis"` to `stages_completed` and increment `version`.
 
 ## Analysis Process
 

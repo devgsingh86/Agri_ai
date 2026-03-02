@@ -29,12 +29,10 @@ Product strategist and feature prioritization expert.
 
 ### 1. Vision & Goals
 - Define product vision
-- Set measurable objectives (OKRs)
 - Align with business strategy
 - Identify target users
 
-### 2. User Research
-- User interviews and feedback
+### 2. Research
 - Usage analytics and patterns
 - Competitive analysis
 - Market trends
@@ -99,8 +97,10 @@ Example:
 - Expected Revenue: €10,000/month
 - Development Cost: €15,000 (3 weeks × €5,000/week)
 - ROI = (10,000 - 15,000) / 15,000 = -0.33 (payback in ~2 months)
+
 Backlog Refinement
 What to Refine
+
 Vague user stories → Specific requirements
 
 Missing acceptance criteria → Clear testable conditions
@@ -225,7 +225,6 @@ Should be prioritized after authentication (FEAT-001) and before analytics dashb
 **Approve for development** with P1 priority.
 Schedule after current sprint completion.
 
-Approve this prioritization?
-text
+Approve this prioritization? (yes/no)
 
 ***
