@@ -20,6 +20,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useNavigation } from '@react-navigation/native';
 import { registerSchema, RegisterFormValues } from '../../utils/validation';
 import { useAuth } from '../../hooks/useAuth';
+import { useTranslation } from 'react-i18next';
 import type { AuthStackParamList } from '../../types';
 
 type RegisterNav = NativeStackNavigationProp<AuthStackParamList, 'Register'>;
@@ -27,6 +28,7 @@ type RegisterNav = NativeStackNavigationProp<AuthStackParamList, 'Register'>;
 export function RegisterScreen(): React.JSX.Element {
   const navigation = useNavigation<RegisterNav>();
   const { register: registerUser, isRegisterLoading } = useAuth();
+  const { t } = useTranslation();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
 
@@ -51,7 +53,7 @@ export function RegisterScreen(): React.JSX.Element {
         typeof (err as Record<string, unknown>).data === 'object'
           ? ((err as { data: { message: string } }).data?.message ?? 'Registration failed.')
           : 'Registration failed. Please try again.';
-      Alert.alert('Registration Failed', message);
+      Alert.alert(t('registerFailed'), message);
     }
   };
 
@@ -67,15 +69,15 @@ export function RegisterScreen(): React.JSX.Element {
         {/* Header */}
         <View style={styles.header}>
           <Text style={styles.logo}>🌱</Text>
-          <Text style={styles.title}>Create Account</Text>
-          <Text style={styles.subtitle}>Join AgriAI — your farming assistant</Text>
+          <Text style={styles.title}>{t('registerTitle')}</Text>
+          <Text style={styles.subtitle}>{t('registerSubtitle')}</Text>
         </View>
 
         {/* Form */}
         <View style={styles.form}>
           {/* Email */}
           <View style={styles.fieldGroup}>
-            <Text style={styles.label}>Email Address</Text>
+            <Text style={styles.label}>{t('emailAddress')}</Text>
             <Controller
               control={control}
               name="email"
@@ -100,7 +102,7 @@ export function RegisterScreen(): React.JSX.Element {
 
           {/* Password */}
           <View style={styles.fieldGroup}>
-            <Text style={styles.label}>Password</Text>
+            <Text style={styles.label}>{t('password')}</Text>
             <View style={styles.passwordWrapper}>
               <Controller
                 control={control}
@@ -134,7 +136,7 @@ export function RegisterScreen(): React.JSX.Element {
 
           {/* Confirm Password */}
           <View style={styles.fieldGroup}>
-            <Text style={styles.label}>Confirm Password</Text>
+            <Text style={styles.label}>{t('confirmPassword')}</Text>
             <View style={styles.passwordWrapper}>
               <Controller
                 control={control}
@@ -178,16 +180,16 @@ export function RegisterScreen(): React.JSX.Element {
             {isRegisterLoading ? (
               <ActivityIndicator color="#FFFFFF" />
             ) : (
-              <Text style={styles.submitText}>Create Account</Text>
+              <Text style={styles.submitText}>{t('registerTitle')}</Text>
             )}
           </TouchableOpacity>
         </View>
 
         {/* Footer */}
         <View style={styles.footer}>
-          <Text style={styles.footerText}>Already have an account? </Text>
+          <Text style={styles.footerText}>{t('haveAccount')} </Text>
           <TouchableOpacity onPress={() => navigation.navigate('Login')}>
-            <Text style={styles.footerLink}>Sign In</Text>
+            <Text style={styles.footerLink}>{t('signIn')}</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>

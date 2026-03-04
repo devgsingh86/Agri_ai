@@ -1,22 +1,38 @@
 /**
  * AgriAI React Native App
- * Root component — sets up Redux Provider + Navigation
+ * Root component — sets up Redux Provider + Navigation + i18n
  */
-import React from 'react';
-import { StatusBar, StyleSheet, View } from 'react-native';
-import { Provider } from 'react-redux';
+import React, { useEffect } from 'react';
+import { StatusBar, StyleSheet } from 'react-native';
+import { Provider, useDispatch } from 'react-redux';
 import { NavigationContainer } from '@react-navigation/native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { store } from './src/store';
 import { RootNavigator } from './src/navigation';
+import { loadPersistedLanguage } from './src/store/languageSlice';
+import './src/i18n';
+import type { AppDispatch } from './src/store';
+
+/** Loads the persisted language on startup */
+function AppInit(): React.JSX.Element {
+  const dispatch = useDispatch<AppDispatch>();
+  useEffect(() => {
+    void dispatch(loadPersistedLanguage());
+  }, [dispatch]);
+  return (
+    <>
+      <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
+      <RootNavigator />
+    </>
+  );
+}
 
 function App(): React.JSX.Element {
   return (
     <Provider store={store}>
       <SafeAreaProvider>
         <NavigationContainer>
-          <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
-          <RootNavigator />
+          <AppInit />
         </NavigationContainer>
       </SafeAreaProvider>
     </Provider>

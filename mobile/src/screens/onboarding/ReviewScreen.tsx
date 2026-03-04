@@ -18,6 +18,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useCreateProfileMutation } from '../../services/api';
 import { useAppDispatch, useAppSelector } from '../../hooks/useRedux';
 import { resetOnboarding } from '../../store/onboardingSlice';
+import { useTranslation } from 'react-i18next';
 import type { OnboardingStackParamList, FarmProfileRequest, ExperienceLevel } from '../../types';
 
 type Nav = NativeStackNavigationProp<OnboardingStackParamList, 'Review'>;
@@ -25,6 +26,7 @@ type Nav = NativeStackNavigationProp<OnboardingStackParamList, 'Review'>;
 export function ReviewScreen(): React.JSX.Element {
   const navigation = useNavigation<Nav>();
   const dispatch = useAppDispatch();
+  const { t } = useTranslation();
   const { personalInfo, farmDetails, location, experience } = useAppSelector(
     (s) => s.onboarding
   );
@@ -118,7 +120,7 @@ export function ReviewScreen(): React.JSX.Element {
   return (
     <View style={styles.flex}>
       <ScrollView contentContainerStyle={styles.container}>
-        <Text style={styles.title}>Review Your Profile</Text>
+        <Text style={styles.title}>{t('reviewTitle')}</Text>
         <Text style={styles.subtitle}>
           Please confirm all details before submitting.
         </Text>
@@ -126,41 +128,41 @@ export function ReviewScreen(): React.JSX.Element {
         {/* Personal Info */}
         <View style={styles.section}>
           <SectionHeader
-            title="Personal Information"
+            title={t('personalInfo')}
             icon="👤"
             onEdit={() => navigation.navigate('PersonalInfo')}
           />
-          <Row label="First Name" value={personalInfo.firstName} />
-          <Row label="Last Name" value={personalInfo.lastName} />
+          <Row label={t('firstName')} value={personalInfo.firstName} />
+          <Row label={t('lastName')} value={personalInfo.lastName} />
           <Row
-            label="Phone"
-            value={personalInfo.phoneNumber || 'Not provided'}
+            label={t('phone')}
+            value={personalInfo.phoneNumber || '—'}
           />
         </View>
 
         {/* Farm Details */}
         <View style={styles.section}>
           <SectionHeader
-            title="Farm Details"
+            title={t('farmDetails')}
             icon="🌾"
             onEdit={() => navigation.navigate('FarmSize')}
           />
           <Row
-            label="Farm Size"
+            label={t('farmSize')}
             value={
               farmDetails.farmSize
                 ? `${farmDetails.farmSize} ${farmDetails.farmSizeUnit}`
-                : 'Not set'
+                : '—'
             }
           />
           <Row
-            label="Crops"
+            label={t('crops')}
             value={
               farmDetails.crops.length > 0
                 ? farmDetails.crops
                     .map((c) => c.crop_name + (c.is_custom ? ' ✦' : ''))
                     .join(', ')
-                : 'None selected'
+                : '—'
             }
           />
         </View>
@@ -168,30 +170,30 @@ export function ReviewScreen(): React.JSX.Element {
         {/* Location */}
         <View style={styles.section}>
           <SectionHeader
-            title="Location"
+            title={t('location')}
             icon="📍"
             onEdit={() => navigation.navigate('Location')}
           />
           {location.locationType === 'gps' ? (
             <>
-              <Row label="Method" value="GPS" />
+              <Row label={t('method')} value={t('gps')} />
               <Row
-                label="Coordinates"
+                label={t('coordinates')}
                 value={
                   location.latitude !== undefined
                     ? `${location.latitude?.toFixed(4)}, ${location.longitude?.toFixed(4)}`
-                    : 'Not captured'
+                    : '—'
                 }
               />
             </>
           ) : (
             <>
-              <Row label="Method" value="Manual" />
-              <Row label="Country" value={location.country} />
-              <Row label="State" value={location.state} />
-              <Row label="District" value={location.district} />
-              {location.village ? <Row label="Village" value={location.village} /> : null}
-              {location.address ? <Row label="Address" value={location.address} /> : null}
+              <Row label={t('method')} value={t('manual')} />
+              <Row label={t('country')} value={location.country} />
+              <Row label={t('state')} value={location.state} />
+              <Row label={t('district')} value={location.district} />
+              {location.village ? <Row label={t('village')} value={location.village} /> : null}
+              {location.address ? <Row label={t('address')} value={location.address} /> : null}
             </>
           )}
         </View>
@@ -199,20 +201,20 @@ export function ReviewScreen(): React.JSX.Element {
         {/* Experience */}
         <View style={styles.section}>
           <SectionHeader
-            title="Experience"
+            title={t('experience')}
             icon="🏅"
             onEdit={() => navigation.navigate('Experience')}
           />
           <Row
-            label="Level"
+            label={t('level')}
             value={
               experience.level
                 ? experience.level.charAt(0).toUpperCase() + experience.level.slice(1)
-                : 'Not set'
+                : '—'
             }
           />
           {experience.yearsOfExperience ? (
-            <Row label="Years" value={`${experience.yearsOfExperience} years`} />
+            <Row label={t('years', { count: Number(experience.yearsOfExperience) })} value={`${experience.yearsOfExperience}`} />
           ) : null}
         </View>
 
@@ -227,7 +229,7 @@ export function ReviewScreen(): React.JSX.Element {
           {isLoading ? (
             <ActivityIndicator color="#FFFFFF" />
           ) : (
-            <Text style={styles.submitText}>✓ Submit Profile</Text>
+            <Text style={styles.submitText}>✓ {t('submitProfile')}</Text>
           )}
         </TouchableOpacity>
       </ScrollView>

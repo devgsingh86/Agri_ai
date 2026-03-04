@@ -209,6 +209,7 @@ export interface WeatherDay {
   date: string;
   weatherCode: number;
   condition: string;
+  conditionKey: string;
   icon: string;
   tempMax: number;
   tempMin: number;
@@ -222,6 +223,8 @@ export type AdvisoryType = 'warning' | 'info' | 'tip';
 export interface CropAdvisory {
   type: AdvisoryType;
   message: string;
+  messageKey: string;
+  params?: Record<string, string | number>;
 }
 
 export interface WeatherForecast {

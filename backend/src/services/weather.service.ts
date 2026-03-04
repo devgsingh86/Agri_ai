@@ -20,6 +20,7 @@ export interface WeatherDay {
   date: string;
   weatherCode: number;
   condition: string;
+  conditionKey: string;
   icon: string;
   tempMax: number;
   tempMin: number;
@@ -31,6 +32,8 @@ export interface WeatherDay {
 export interface CropAdvisory {
   type: 'warning' | 'info' | 'tip';
   message: string;
+  messageKey: string;
+  params?: Record<string, string | number>;
 }
 
 export interface WeatherForecast {
@@ -40,21 +43,21 @@ export interface WeatherForecast {
   generatedAt: string;
 }
 
-/** Maps WMO weather codes to human-readable condition + emoji */
-function decodeWeatherCode(code: number): { condition: string; icon: string } {
-  if (code === 0) return { condition: 'Clear Sky', icon: '☀️' };
-  if (code === 1) return { condition: 'Mainly Clear', icon: '🌤️' };
-  if (code === 2) return { condition: 'Partly Cloudy', icon: '⛅' };
-  if (code === 3) return { condition: 'Overcast', icon: '☁️' };
-  if (code <= 48) return { condition: 'Foggy', icon: '🌫️' };
-  if (code <= 55) return { condition: 'Drizzle', icon: '🌦️' };
-  if (code <= 65) return { condition: 'Rain', icon: '🌧️' };
-  if (code <= 75) return { condition: 'Snow', icon: '❄️' };
-  if (code <= 82) return { condition: 'Rain Showers', icon: '🌦️' };
-  if (code <= 86) return { condition: 'Snow Showers', icon: '🌨️' };
-  if (code === 95) return { condition: 'Thunderstorm', icon: '⛈️' };
-  if (code >= 96) return { condition: 'Thunderstorm + Hail', icon: '⛈️' };
-  return { condition: 'Unknown', icon: '🌡️' };
+/** Maps WMO weather codes to human-readable condition + emoji + i18n key */
+function decodeWeatherCode(code: number): { condition: string; conditionKey: string; icon: string } {
+  if (code === 0) return { condition: 'Clear Sky', conditionKey: 'clearSky', icon: '☀️' };
+  if (code === 1) return { condition: 'Mainly Clear', conditionKey: 'mainlyClear', icon: '🌤️' };
+  if (code === 2) return { condition: 'Partly Cloudy', conditionKey: 'partlyCloudy', icon: '⛅' };
+  if (code === 3) return { condition: 'Overcast', conditionKey: 'overcast', icon: '☁️' };
+  if (code <= 48) return { condition: 'Foggy', conditionKey: 'foggy', icon: '🌫️' };
+  if (code <= 55) return { condition: 'Drizzle', conditionKey: 'drizzle', icon: '🌦️' };
+  if (code <= 65) return { condition: 'Rain', conditionKey: 'rain', icon: '🌧️' };
+  if (code <= 75) return { condition: 'Snow', conditionKey: 'snow', icon: '❄️' };
+  if (code <= 82) return { condition: 'Rain Showers', conditionKey: 'rainShowers', icon: '🌦️' };
+  if (code <= 86) return { condition: 'Snow Showers', conditionKey: 'snowShowers', icon: '🌨️' };
+  if (code === 95) return { condition: 'Thunderstorm', conditionKey: 'thunderstorm', icon: '⛈️' };
+  if (code >= 96) return { condition: 'Thunderstorm + Hail', conditionKey: 'thunderstormHail', icon: '⛈️' };
+  return { condition: 'Unknown', conditionKey: 'unknownWeather', icon: '🌡️' };
 }
 
 /** Crop categories for advisory logic */
@@ -99,18 +102,22 @@ function buildAdvisories(days: WeatherDay[], cropNames: string[]): CropAdvisory[
     advisories.push({
       type: 'warning',
       message: `Heavy rain expected (${maxRainDay.toFixed(0)}mm in one day). Ensure drainage channels are clear to prevent waterlogging.`,
+      messageKey: 'adv_heavyRain',
+      params: { mm: maxRainDay.toFixed(0) },
     });
   }
   if (hasCereals && highRainDays >= 2) {
     advisories.push({
       type: 'warning',
       message: 'Prolonged wet conditions can trigger fungal diseases in cereals. Consider preventive fungicide application.',
+      messageKey: 'adv_cerealFungal',
     });
   }
   if (hasCash && cropNames.some((c) => c.toLowerCase().includes('cotton')) && highRainDays >= 2) {
     advisories.push({
       type: 'warning',
       message: 'Excess rain is harmful to cotton bolls. Monitor for boll rot and avoid waterlogged fields.',
+      messageKey: 'adv_cottonBollRot',
     });
   }
 
@@ -119,31 +126,35 @@ function buildAdvisories(days: WeatherDay[], cropNames: string[]): CropAdvisory[
     advisories.push({
       type: 'warning',
       message: `Dry week ahead (${totalRain7.toFixed(1)}mm total). Plan irrigation to prevent moisture stress.`,
+      messageKey: 'adv_dryWeek',
+      params: { mm: totalRain7.toFixed(1) },
     });
   }
   if (hasVeg && dryDays >= 3) {
     advisories.push({
       type: 'tip',
       message: 'Vegetables need consistent moisture. Increase irrigation frequency during the dry spell.',
+      messageKey: 'adv_vegIrrigation',
     });
   }
   if (hasFruits && dryDays >= 4 && avgMaxTemp > 32) {
     advisories.push({
       type: 'tip',
       message: 'High temperatures combined with dry conditions can cause fruit drop. Mulch around trees to retain soil moisture.',
+      messageKey: 'adv_fruitDrop',
     });
   }
 
   // ── Frost ────────────────────────────────────────────────────────────────
   if (hasFrost) {
     if (hasVeg) {
-      advisories.push({ type: 'warning', message: 'Near-freezing temperatures expected. Protect vegetable crops with row covers or mulch.' });
+      advisories.push({ type: 'warning', message: 'Near-freezing temperatures expected. Protect vegetable crops with row covers or mulch.', messageKey: 'adv_vegFrost' });
     }
     if (hasFruits) {
-      advisories.push({ type: 'warning', message: 'Frost risk detected. Young fruit trees may need protection; avoid irrigation on frost nights.' });
+      advisories.push({ type: 'warning', message: 'Frost risk detected. Young fruit trees may need protection; avoid irrigation on frost nights.', messageKey: 'adv_fruitFrost' });
     }
     if (hasLegumes) {
-      advisories.push({ type: 'warning', message: 'Sub-zero temperatures can damage legume foliage. Consider covering sensitive plants.' });
+      advisories.push({ type: 'warning', message: 'Sub-zero temperatures can damage legume foliage. Consider covering sensitive plants.', messageKey: 'adv_legumeFrost' });
     }
   }
 
@@ -152,12 +163,15 @@ function buildAdvisories(days: WeatherDay[], cropNames: string[]): CropAdvisory[
     advisories.push({
       type: 'warning',
       message: `Extreme heat forecast (avg max ${avgMaxTemp.toFixed(0)}°C). Avoid field work during peak hours (11am–3pm) and increase irrigation.`,
+      messageKey: 'adv_extremeHeat',
+      params: { temp: avgMaxTemp.toFixed(0) },
     });
   }
   if (hasCereals && avgMaxTemp > 35) {
     advisories.push({
       type: 'warning',
       message: 'High temperatures during grain-fill stage can reduce yield. Irrigate in early morning to cool crop canopy.',
+      messageKey: 'adv_cerealHeat',
     });
   }
 
@@ -166,6 +180,8 @@ function buildAdvisories(days: WeatherDay[], cropNames: string[]): CropAdvisory[
     advisories.push({
       type: 'warning',
       message: `Strong winds (>40 km/h) expected on ${highWindDays} day(s). Check staking/trellising for tall crops and fruit trees.`,
+      messageKey: 'adv_highWind',
+      params: { days: highWindDays },
     });
   }
 
@@ -174,6 +190,7 @@ function buildAdvisories(days: WeatherDay[], cropNames: string[]): CropAdvisory[
     advisories.push({
       type: 'warning',
       message: 'Thunderstorms in the forecast. Avoid spraying pesticides or fertilisers 24 hours before predicted storms.',
+      messageKey: 'adv_thunderstorm',
     });
   }
 
@@ -182,18 +199,21 @@ function buildAdvisories(days: WeatherDay[], cropNames: string[]): CropAdvisory[
     advisories.push({
       type: 'info',
       message: 'Favourable mix of sun and moderate rain. Good conditions for plant growth and field operations.',
+      messageKey: 'adv_goodConditions',
     });
   }
   if (clearDays >= 2 && hasCereals && dryDays >= 2) {
     advisories.push({
       type: 'tip',
       message: 'Dry and sunny days ahead — ideal for harvesting or threshing cereals if ready.',
+      messageKey: 'adv_harvestTime',
     });
   }
   if (hasLegumes && totalRain7 >= 15 && totalRain7 <= 35) {
     advisories.push({
       type: 'info',
       message: 'Moderate rainfall is ideal for legume root nodule development. A good week for your pulse crops.',
+      messageKey: 'adv_legumeRain',
     });
   }
 
@@ -202,6 +222,7 @@ function buildAdvisories(days: WeatherDay[], cropNames: string[]): CropAdvisory[
     advisories.push({
       type: 'info',
       message: 'No significant weather risks this week. Continue regular crop monitoring and irrigation schedules.',
+      messageKey: 'adv_noRisk',
     });
   }
 

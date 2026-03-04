@@ -20,6 +20,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useNavigation } from '@react-navigation/native';
 import { loginSchema, LoginFormValues } from '../../utils/validation';
 import { useAuth } from '../../hooks/useAuth';
+import { useTranslation } from 'react-i18next';
 import type { AuthStackParamList } from '../../types';
 
 type LoginNav = NativeStackNavigationProp<AuthStackParamList, 'Login'>;
@@ -27,6 +28,7 @@ type LoginNav = NativeStackNavigationProp<AuthStackParamList, 'Login'>;
 export function LoginScreen(): React.JSX.Element {
   const navigation = useNavigation<LoginNav>();
   const { login, isLoginLoading } = useAuth();
+  const { t } = useTranslation();
   const [showPassword, setShowPassword] = useState(false);
 
   const {
@@ -48,8 +50,8 @@ export function LoginScreen(): React.JSX.Element {
           ? err.message
           : typeof err === 'object' && err !== null && 'data' in err
           ? (err as { data: { message: string } }).data?.message
-          : 'Login failed. Please try again.';
-      Alert.alert('Login Failed', message);
+          : t('loginFailed');
+      Alert.alert(t('loginFailed'), message);
     }
   };
 
@@ -65,15 +67,15 @@ export function LoginScreen(): React.JSX.Element {
         {/* Header */}
         <View style={styles.header}>
           <Text style={styles.logo}>🌾</Text>
-          <Text style={styles.title}>Welcome Back</Text>
-          <Text style={styles.subtitle}>Sign in to your AgriAI account</Text>
+          <Text style={styles.title}>{t('loginTitle')}</Text>
+          <Text style={styles.subtitle}>{t('loginSubtitle')}</Text>
         </View>
 
         {/* Form */}
         <View style={styles.form}>
           {/* Email */}
           <View style={styles.fieldGroup}>
-            <Text style={styles.label}>Email Address</Text>
+            <Text style={styles.label}>{t('emailAddress')}</Text>
             <Controller
               control={control}
               name="email"
@@ -100,7 +102,7 @@ export function LoginScreen(): React.JSX.Element {
 
           {/* Password */}
           <View style={styles.fieldGroup}>
-            <Text style={styles.label}>Password</Text>
+            <Text style={styles.label}>{t('password')}</Text>
             <View style={styles.passwordWrapper}>
               <Controller
                 control={control}
@@ -144,16 +146,16 @@ export function LoginScreen(): React.JSX.Element {
             {isLoginLoading ? (
               <ActivityIndicator color="#FFFFFF" />
             ) : (
-              <Text style={styles.submitText}>Sign In</Text>
+              <Text style={styles.submitText}>{t('signIn')}</Text>
             )}
           </TouchableOpacity>
         </View>
 
         {/* Footer */}
         <View style={styles.footer}>
-          <Text style={styles.footerText}>Don't have an account? </Text>
+          <Text style={styles.footerText}>{t('noAccount')} </Text>
           <TouchableOpacity onPress={() => navigation.navigate('Register')}>
-            <Text style={styles.footerLink}>Create Account</Text>
+            <Text style={styles.footerLink}>{t('registerTitle')}</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
