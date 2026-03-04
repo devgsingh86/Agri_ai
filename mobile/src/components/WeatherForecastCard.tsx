@@ -104,7 +104,7 @@ export function WeatherForecastCard(): React.JSX.Element {
         <View style={styles.todayHero}>
           <Text style={styles.todayIcon}>{weather.days[0].icon}</Text>
           <View style={styles.todayInfo}>
-            <Text style={styles.todayCondition}>{weather.days[0].condition}</Text>
+            <Text style={styles.todayCondition}>{t(weather.days[0].conditionKey)}</Text>
             <Text style={styles.todayTemp}>
               {weather.days[0].tempMax}° <Text style={styles.todayTempMin}>/ {weather.days[0].tempMin}°C</Text>
             </Text>
@@ -140,7 +140,7 @@ export function WeatherForecastCard(): React.JSX.Element {
               ]}
             >
               <Text style={styles.advisoryIcon}>{ADVISORY_ICON[a.type]}</Text>
-              <Text style={styles.advisoryText}>{a.message}</Text>
+              <Text style={styles.advisoryText}>{t(a.messageKey, a.params)}</Text>
             </View>
           ))}
           {weather.advisories.length > 2 && (

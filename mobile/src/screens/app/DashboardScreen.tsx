@@ -16,6 +16,7 @@ import { useTranslation } from 'react-i18next';
 import { useGetProfileQuery } from '../../services/api';
 import { WeatherForecastCard } from '../../components/WeatherForecastCard';
 import { LanguageSelector } from '../../components/LanguageSelector';
+import { translateCropName } from '../../i18n/cropTranslation';
 
 export function DashboardScreen(): React.JSX.Element {
   const { t } = useTranslation();
@@ -44,8 +45,11 @@ export function DashboardScreen(): React.JSX.Element {
 
   const completeness = profile.completeness ?? 0;
   const firstName = profile.first_name;
-  const cropNames = profile.crops?.map((c) => c.crop_name).join(', ') ?? '—';
+  const cropNames = profile.crops?.map((c) => translateCropName(c.crop_name)).join(', ') ?? '—';
   const farmSizeDisplay = `${profile.farm_size} ${profile.farm_size_unit}`;
+  const experienceDisplay = profile.experience_level
+    ? t(profile.experience_level)
+    : '—';
 
   return (
     <ScrollView
@@ -101,12 +105,7 @@ export function DashboardScreen(): React.JSX.Element {
         </View>
         <View style={styles.statCard}>
           <Text style={styles.statIcon}>🏅</Text>
-          <Text style={styles.statValue}>
-            {profile.experience_level
-              ? profile.experience_level.charAt(0).toUpperCase() +
-                profile.experience_level.slice(1)
-              : '—'}
-          </Text>
+          <Text style={styles.statValue}>{experienceDisplay}</Text>
           <Text style={styles.statLabel}>{t('level')}</Text>
         </View>
       </View>
