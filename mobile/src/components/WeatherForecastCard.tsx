@@ -96,7 +96,9 @@ export function WeatherForecastCard(): React.JSX.Element {
       {/* Header */}
       <View style={styles.headerRow}>
         <Text style={styles.cardTitle}>{t('weekForecast')}</Text>
-        <Text style={styles.timezone}>{weather.timezone.replace('_', ' ')}</Text>
+        <Text style={styles.timezone}>
+          {weather.locationLabel ?? weather.timezone.replace('_', ' ')}
+        </Text>
       </View>
 
       {/* Today hero */}

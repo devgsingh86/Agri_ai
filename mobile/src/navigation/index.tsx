@@ -31,6 +31,7 @@ import { ReviewScreen } from '../screens/onboarding/ReviewScreen';
 // App screens
 import { DashboardScreen } from '../screens/app/DashboardScreen';
 import { ProfileScreen } from '../screens/app/ProfileScreen';
+import { ProfitabilityScreen } from '../screens/app/ProfitabilityScreen';
 
 import type {
   AuthStackParamList,
@@ -130,6 +131,17 @@ function AppNavigator(): React.JSX.Element {
           tabBarLabel: 'Home',
           tabBarIcon: ({ color }) => (
             <TabIcon label="🏠" color={color} />
+          ),
+        }}
+      />
+      <AppTab.Screen
+        name="Calculator"
+        component={ProfitabilityScreen}
+        options={{
+          title: 'Profitability',
+          tabBarLabel: 'Calculator',
+          tabBarIcon: ({ color }) => (
+            <TabIcon label="📊" color={color} />
           ),
         }}
       />

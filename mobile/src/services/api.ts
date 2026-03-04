@@ -20,11 +20,14 @@ import type {
   OnboardingProgressResponse,
   WeatherForecast,
   WeatherResponse,
+  ProfitabilityResult,
+  ProfitabilityResponse,
+  ProfitabilityQueryArgs,
 } from '../types';
 
 // TODO: Use react-native-config for per-environment URL (HTTP only for local dev)
 const BASE_URL = __DEV__
-  ? 'http://10.0.2.2:3000/api/v1'
+  ? 'http://localhost:3000/api/v1' // adb reverse tcp:3000 tcp:3000 maps to host
   : 'https://api.agri-ai.app/api/v1'; // replace with actual prod URL
 
 export const agriApi = createApi({
@@ -40,7 +43,7 @@ export const agriApi = createApi({
       return headers;
     },
   }),
-  tagTypes: ['Profile', 'Progress', 'Weather'],
+  tagTypes: ['Profile', 'Progress', 'Weather', 'Profitability'],
   endpoints: (builder) => ({
     // ─── Auth ──────────────────────────────────────────────────────────────
     register: builder.mutation<AuthResponse, RegisterRequest>({
@@ -135,6 +138,20 @@ export const agriApi = createApi({
       transformResponse: (response: WeatherResponse) => response.data,
       providesTags: ['Weather'],
     }),
+
+    // ─── Profitability ────────────────────────────────────────────────────────
+    getProfitability: builder.query<ProfitabilityResult, ProfitabilityQueryArgs>({
+      query: (args) => {
+        const params = new URLSearchParams();
+        if (args.season && args.season !== 'all') params.set('season', args.season);
+        if (args.water  && args.water  !== 'all') params.set('water',  args.water);
+        if (args.soil   && args.soil   !== 'all') params.set('soil',   args.soil);
+        const qs = params.toString();
+        return `/profitability${qs ? `?${qs}` : ''}`;
+      },
+      transformResponse: (response: ProfitabilityResponse) => response.data,
+      providesTags: ['Profitability'],
+    }),
   }),
 });
 
@@ -150,4 +167,5 @@ export const {
   useGetProgressQuery,
   useSaveProgressMutation,
   useGetWeatherQuery,
+  useGetProfitabilityQuery,
 } = agriApi;

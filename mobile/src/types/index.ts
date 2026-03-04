@@ -200,6 +200,7 @@ export type OnboardingStackParamList = {
 
 export type AppTabParamList = {
   Dashboard: undefined;
+  Calculator: undefined;
   Profile: undefined;
 };
 
@@ -229,6 +230,7 @@ export interface CropAdvisory {
 
 export interface WeatherForecast {
   timezone: string;
+  locationLabel?: string | null;
   days: WeatherDay[];
   advisories: CropAdvisory[];
   generatedAt: string;
@@ -236,4 +238,49 @@ export interface WeatherForecast {
 
 export interface WeatherResponse {
   data: WeatherForecast;
+}
+
+// ─── Profitability Calculator ─────────────────────────────────────────────────
+
+export type ProfitabilitySeason = 'kharif' | 'rabi' | 'zaid' | 'all';
+export type WaterRequirement = 'low' | 'medium' | 'high';
+export type SoilType = 'alluvial' | 'black' | 'red' | 'loamy' | 'sandy' | 'clayey';
+
+export interface CostBreakdown {
+  seed: number;
+  fertilizer: number;
+  labour: number;
+  irrigation: number;
+  total: number;
+}
+
+export interface ProfitabilityCrop {
+  cropKey: string;
+  season: Exclude<ProfitabilitySeason, 'all'>;
+  yieldPerAcre: number;
+  mandiPrice: number;
+  revenuePerAcre: number;
+  costBreakdown: CostBreakdown;
+  netProfitPerAcre: number;
+  roi: number;
+  waterRequirement: WaterRequirement;
+  soilTypes: SoilType[];
+}
+
+export interface ProfitabilityResult {
+  crops: ProfitabilityCrop[];
+  state: string;
+  farmSizeAcres: number;
+  season: ProfitabilitySeason;
+  generatedAt: string;
+}
+
+export interface ProfitabilityResponse {
+  data: ProfitabilityResult;
+}
+
+export interface ProfitabilityQueryArgs {
+  season?: ProfitabilitySeason;
+  water?: WaterRequirement | 'all';
+  soil?: SoilType | 'all';
 }

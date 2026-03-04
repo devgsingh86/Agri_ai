@@ -39,7 +39,11 @@ export async function getWeather(
 
     const forecast = await getWeatherForecast(latitude, longitude, cropNames);
 
-    res.status(200).json({ data: forecast });
+    // Build a human-readable location label from farm profile fields
+    const locationParts = [profile.village, profile.district].filter(Boolean);
+    const locationLabel = locationParts.length > 0 ? locationParts.join(', ') : null;
+
+    res.status(200).json({ data: { ...forecast, locationLabel } });
   } catch (err) {
     next(err);
   }

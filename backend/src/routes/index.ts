@@ -3,6 +3,7 @@ import profileRoutes from './profile.routes';
 import cropsRoutes from './crops.routes';
 import authRoutes from './onboarding.routes';
 import weatherRoutes from './weather.routes';
+import profitabilityRoutes from './profitability.routes';
 
 const router = Router();
 
@@ -24,5 +25,6 @@ router.use('/profile', profileRoutes);
 router.use('/crops', cropsRoutes);
 router.use('/auth', authRoutes);
 router.use('/weather', weatherRoutes);
+router.use('/profitability', profitabilityRoutes);
 
 export default router;
