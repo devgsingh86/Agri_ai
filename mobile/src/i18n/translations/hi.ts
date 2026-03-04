@@ -85,6 +85,27 @@ const hi = {
   experienced: 'अनुभवी',
   expert: 'विशेषज्ञ',
 
+  // Profile extra
+  emailAddress: 'ईमेल पता',
+  accountInfo: 'खाता जानकारी',
+  profileCreated: 'प्रोफ़ाइल बनाई गई',
+  lastUpdated: 'अंतिम अपडेट',
+  signOut: 'साइन आउट',
+  signOutTitle: 'साइन आउट',
+  signOutConfirm: 'क्या आप वाकई साइन आउट करना चाहते हैं?',
+  profileCompletePercent: 'प्रोफ़ाइल {{percent}}% पूर्ण',
+  loadingProfile: 'प्रोफ़ाइल लोड हो रही है...',
+  couldNotLoadProfileError: 'प्रोफ़ाइल लोड नहीं हो सकी',
+
+  // Welcome / Onboarding
+  getStarted: 'शुरू करें',
+  resumeProgress: 'जारी रखें',
+  startFresh: 'नए सिरे से शुरू करें',
+  review: 'समीक्षा',
+  method: 'विधि',
+  submitProfile: 'प्रोफ़ाइल जमा करें',
+  submitting: 'जमा हो रहा है...',
+
   // Language
   selectLanguage: 'भाषा चुनें',
   language: 'भाषा',

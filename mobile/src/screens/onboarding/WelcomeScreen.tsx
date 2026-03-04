@@ -15,6 +15,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useGetProgressQuery } from '../../services/api';
 import { hydrateFromProgress, setCurrentStep } from '../../store/onboardingSlice';
 import { useAppDispatch } from '../../hooks/useRedux';
+import { useTranslation } from 'react-i18next';
 import type { OnboardingStackParamList, OnboardingState } from '../../types';
 
 type WelcomeNav = NativeStackNavigationProp<OnboardingStackParamList, 'Welcome'>;
@@ -22,6 +23,7 @@ type WelcomeNav = NativeStackNavigationProp<OnboardingStackParamList, 'Welcome'>
 export function WelcomeScreen(): React.JSX.Element {
   const navigation = useNavigation<WelcomeNav>();
   const dispatch = useAppDispatch();
+  const { t } = useTranslation();
   const [resumeStep, setResumeStep] = useState<number | null>(null);
 
   const { data: progress, isLoading, isError } = useGetProgressQuery();
@@ -59,7 +61,7 @@ export function WelcomeScreen(): React.JSX.Element {
     return (
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color="#2D7A3A" />
-        <Text style={styles.loadingText}>Loading your profile...</Text>
+        <Text style={styles.loadingText}>{t('loadingProfile')}</Text>
       </View>
     );
   }
@@ -71,7 +73,7 @@ export function WelcomeScreen(): React.JSX.Element {
         <Text style={styles.heroEmoji}>🌾</Text>
         <Text style={styles.heroTitle}>AgriAI</Text>
         <Text style={styles.heroSubtitle}>
-          Your intelligent farming assistant
+          {t('welcomeSubtitle')}
         </Text>
       </View>
 
@@ -105,7 +107,7 @@ export function WelcomeScreen(): React.JSX.Element {
             accessibilityLabel="Resume onboarding"
           >
             <Text style={styles.resumeText}>
-              ▶ Resume — Step {resumeStep} of 5
+              ▶ {t('resumeProgress')} — Step {resumeStep} of 5
             </Text>
           </TouchableOpacity>
         )}
@@ -117,7 +119,7 @@ export function WelcomeScreen(): React.JSX.Element {
           accessibilityLabel="Start onboarding"
         >
           <Text style={styles.startText}>
-            {resumeStep && resumeStep > 1 ? 'Start Over' : 'Get Started →'}
+            {resumeStep && resumeStep > 1 ? t('startFresh') : `${t('getStarted')} →`}
           </Text>
         </TouchableOpacity>
       </View>

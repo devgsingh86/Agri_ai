@@ -85,6 +85,27 @@ const en = {
   experienced: 'Experienced',
   expert: 'Expert',
 
+  // Profile extra
+  emailAddress: 'Email Address',
+  accountInfo: 'Account Info',
+  profileCreated: 'Profile Created',
+  lastUpdated: 'Last Updated',
+  signOut: 'Sign Out',
+  signOutTitle: 'Sign Out',
+  signOutConfirm: 'Are you sure you want to sign out?',
+  profileCompletePercent: 'Profile {{percent}}% complete',
+  loadingProfile: 'Loading profile...',
+  couldNotLoadProfileError: 'Could not load profile',
+
+  // Welcome / Onboarding
+  getStarted: 'Get Started',
+  resumeProgress: 'Resume',
+  startFresh: 'Start Fresh',
+  review: 'Review',
+  method: 'Method',
+  submitProfile: 'Submit Profile',
+  submitting: 'Submitting...',
+
   // Language
   selectLanguage: 'Select Language',
   language: 'Language',

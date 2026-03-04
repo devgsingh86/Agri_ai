@@ -15,20 +15,21 @@ import {
 } from 'react-native';
 import { useGetProfileQuery } from '../../services/api';
 import { useAuth } from '../../hooks/useAuth';
+import { useTranslation } from 'react-i18next';
 
 export function ProfileScreen(): React.JSX.Element {
   const { data: profile, isLoading, isError, refetch, isFetching } = useGetProfileQuery();
   const { logout } = useAuth();
+  const { t } = useTranslation();
 
   const handleLogout = () => {
-    Alert.alert('Sign Out', 'Are you sure you want to sign out?', [
-      { text: 'Cancel', style: 'cancel' },
+    Alert.alert(t('signOutTitle'), t('signOutConfirm'), [
+      { text: t('cancel'), style: 'cancel' },
       {
-        text: 'Sign Out',
+        text: t('signOut'),
         style: 'destructive',
         onPress: async () => {
           await logout();
-          // RootNavigator reacts and redirects to Auth stack
         },
       },
     ]);
@@ -38,7 +39,7 @@ export function ProfileScreen(): React.JSX.Element {
     return (
       <View style={styles.centered}>
         <ActivityIndicator size="large" color="#2D7A3A" />
-        <Text style={styles.loadingText}>Loading profile...</Text>
+        <Text style={styles.loadingText}>{t('loadingProfile')}</Text>
       </View>
     );
   }
@@ -47,9 +48,9 @@ export function ProfileScreen(): React.JSX.Element {
     return (
       <View style={styles.centered}>
         <Text style={styles.errorEmoji}>⚠️</Text>
-        <Text style={styles.errorTitle}>Could not load profile</Text>
+        <Text style={styles.errorTitle}>{t('couldNotLoadProfileError')}</Text>
         <TouchableOpacity style={styles.retryButton} onPress={refetch}>
-          <Text style={styles.retryText}>Retry</Text>
+          <Text style={styles.retryText}>{t('retry')}</Text>
         </TouchableOpacity>
       </View>
     );
@@ -96,28 +97,28 @@ export function ProfileScreen(): React.JSX.Element {
         ) : null}
         <View style={styles.completenessBadge}>
           <Text style={styles.completenessText}>
-            Profile {profile.completeness}% complete
+            {t('profileCompletePercent', { percent: profile.completeness })}
           </Text>
         </View>
       </View>
 
       {/* Personal Info */}
       <View style={styles.card}>
-        <Section title="Personal Information" icon="👤" />
-        <Row label="First Name" value={profile.first_name} />
-        <Row label="Last Name" value={profile.last_name} />
-        <Row label="Phone" value={profile.phone_number} />
+        <Section title={t('personalInfo')} icon="👤" />
+        <Row label={t('firstName')} value={profile.first_name} />
+        <Row label={t('lastName')} value={profile.last_name} />
+        <Row label={t('phone')} value={profile.phone_number} />
       </View>
 
       {/* Farm Details */}
       <View style={styles.card}>
-        <Section title="Farm Details" icon="🌾" />
+        <Section title={t('farmDetails')} icon="🌾" />
         <Row
-          label="Farm Size"
+          label={t('farmSize')}
           value={`${parseFloat(String(profile.farm_size))} ${profile.farm_size_unit} (${profile.farm_size_hectares ? parseFloat(String(profile.farm_size_hectares)).toFixed(2) : '?'} ha)`}
         />
         <Row
-          label="Crops"
+          label={t('crops')}
           value={
             profile.crops?.length
               ? profile.crops.map((c) => c.crop_name).join(', ')
@@ -128,9 +129,9 @@ export function ProfileScreen(): React.JSX.Element {
 
       {/* Experience */}
       <View style={styles.card}>
-        <Section title="Experience" icon="🏅" />
+        <Section title={t('experience')} icon="🏅" />
         <Row
-          label="Level"
+          label={t('level')}
           value={
             profile.experience_level
               ? profile.experience_level.charAt(0).toUpperCase() +
@@ -139,11 +140,11 @@ export function ProfileScreen(): React.JSX.Element {
           }
         />
         <Row
-          label="Years"
+          label={t('years', { count: profile.years_of_experience ?? 0 })}
           value={
             profile.years_of_experience !== null &&
             profile.years_of_experience !== undefined
-              ? `${profile.years_of_experience} years`
+              ? `${profile.years_of_experience}`
               : null
           }
         />
@@ -151,30 +152,30 @@ export function ProfileScreen(): React.JSX.Element {
 
       {/* Location */}
       <View style={styles.card}>
-        <Section title="Location" icon="📍" />
-        <Row label="Type" value={profile.location_type === 'gps' ? 'GPS' : 'Manual'} />
+        <Section title={t('location')} icon="📍" />
+        <Row label={t('locationType')} value={profile.location_type === 'gps' ? t('gps') : t('manual')} />
         {profile.location_type === 'gps' && profile.latitude ? (
           <Row
-            label="Coordinates"
+            label={t('coordinates')}
             value={`${parseFloat(String(profile.latitude)).toFixed(5)}, ${profile.longitude ? parseFloat(String(profile.longitude)).toFixed(5) : ''}`}
           />
         ) : null}
-        <Row label="Country" value={profile.country} />
-        <Row label="State" value={profile.state} />
-        <Row label="District" value={profile.district} />
-        {profile.village ? <Row label="Village" value={profile.village} /> : null}
-        {profile.address ? <Row label="Address" value={profile.address} /> : null}
+        <Row label={t('country')} value={profile.country} />
+        <Row label={t('state')} value={profile.state} />
+        <Row label={t('district')} value={profile.district} />
+        {profile.village ? <Row label={t('village')} value={profile.village} /> : null}
+        {profile.address ? <Row label={t('address')} value={profile.address} /> : null}
       </View>
 
       {/* Timestamps */}
       <View style={styles.card}>
-        <Section title="Account Info" icon="ℹ️" />
+        <Section title={t('accountInfo')} icon="ℹ️" />
         <Row
-          label="Profile Created"
+          label={t('profileCreated')}
           value={new Date(profile.created_at).toLocaleDateString()}
         />
         <Row
-          label="Last Updated"
+          label={t('lastUpdated')}
           value={new Date(profile.updated_at).toLocaleDateString()}
         />
       </View>
@@ -186,7 +187,7 @@ export function ProfileScreen(): React.JSX.Element {
         accessibilityRole="button"
         accessibilityLabel="Sign out"
       >
-        <Text style={styles.logoutText}>Sign Out</Text>
+        <Text style={styles.logoutText}>{t('signOut')}</Text>
       </TouchableOpacity>
 
       <View style={{ height: 24 }} />
