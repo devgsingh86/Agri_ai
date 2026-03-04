@@ -126,7 +126,7 @@ export function DashboardScreen(): React.JSX.Element {
         </Text>
         {profile.location_type === 'gps' && profile.latitude && (
           <Text style={styles.gpsTag}>
-            GPS: {parseFloat(String(profile.latitude)).toFixed(4)}, {profile.longitude ? parseFloat(String(profile.longitude)).toFixed(4) : ''}
+            {t('gps')}: {parseFloat(String(profile.latitude)).toFixed(4)}, {profile.longitude ? parseFloat(String(profile.longitude)).toFixed(4) : ''}
           </Text>
         )}
       </View>
