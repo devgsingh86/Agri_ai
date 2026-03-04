@@ -6,10 +6,10 @@ services:
     container_name: agri_ai_postgres
     environment:
       POSTGRES_USER: agriai
-      POSTGRES_PASSWORD: agriaipassword
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-agriaipassword}
       POSTGRES_DB: agri_ai_db
     ports:
-      - '5432:5432'
+    - '127.0.0.1:5432:5432'
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:

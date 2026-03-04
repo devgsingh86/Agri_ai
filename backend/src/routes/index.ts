@@ -16,7 +16,6 @@ router.get('/health', (_req: Request, res: Response) => {
     status: 'ok',
     timestamp: new Date().toISOString(),
     service: 'agri-ai-backend',
-    version: process.env.npm_package_version ?? '1.0.0',
   });
 });
 

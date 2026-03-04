@@ -1,12 +1,15 @@
 import Joi from 'joi';
 
+/** Strip HTML tags from a string value. Used as a Joi custom validator. */
+const stripHtml = (val: string) => val.replace(/<[^>]*>/g, '').trim();
+
 /**
  * Joi schema for creating a farm profile.
  * Validates the full request body including optional GPS coordinates.
  */
 export const createProfileSchema = Joi.object({
-  first_name: Joi.string().trim().min(1).max(100).required(),
-  last_name: Joi.string().trim().min(1).max(100).required(),
+  first_name: Joi.string().trim().min(1).max(100).custom(stripHtml).required(),
+  last_name: Joi.string().trim().min(1).max(100).custom(stripHtml).required(),
   phone_number: Joi.string()
     .trim()
     .pattern(/^\+?[\d\s\-()]{7,20}$/)
@@ -25,10 +28,10 @@ export const createProfileSchema = Joi.object({
     then: Joi.number().min(-180).max(180).required(),
     otherwise: Joi.number().min(-180).max(180).optional().allow(null),
   }),
-  country: Joi.string().trim().min(1).max(100).required(),
-  state: Joi.string().trim().min(1).max(100).required(),
-  district: Joi.string().trim().max(100).optional().allow(null, ''),
-  village: Joi.string().trim().max(100).optional().allow(null, ''),
+  country: Joi.string().trim().min(1).max(100).custom(stripHtml).required(),
+  state: Joi.string().trim().min(1).max(100).custom(stripHtml).required(),
+  district: Joi.string().trim().max(100).custom(stripHtml).optional().allow(null, ''),
+  village: Joi.string().trim().max(100).custom(stripHtml).optional().allow(null, ''),
   address: Joi.string().trim().max(500).optional().allow(null, ''),
   experience_level: Joi.string()
     .valid('beginner', 'intermediate', 'experienced', 'expert')
@@ -58,8 +61,8 @@ export const updateProfileSchema = createProfileSchema;
  * All fields optional, at least one required.
  */
 export const patchProfileSchema = Joi.object({
-  first_name: Joi.string().trim().min(1).max(100).optional(),
-  last_name: Joi.string().trim().min(1).max(100).optional(),
+  first_name: Joi.string().trim().min(1).max(100).custom(stripHtml).optional(),
+  last_name: Joi.string().trim().min(1).max(100).custom(stripHtml).optional(),
   phone_number: Joi.string()
     .trim()
     .pattern(/^\+?[\d\s\-()]{7,20}$/)
@@ -70,10 +73,10 @@ export const patchProfileSchema = Joi.object({
   location_type: Joi.string().valid('gps', 'manual').optional(),
   latitude: Joi.number().min(-90).max(90).optional().allow(null),
   longitude: Joi.number().min(-180).max(180).optional().allow(null),
-  country: Joi.string().trim().min(1).max(100).optional(),
-  state: Joi.string().trim().min(1).max(100).optional(),
-  district: Joi.string().trim().max(100).optional().allow(null, ''),
-  village: Joi.string().trim().max(100).optional().allow(null, ''),
+  country: Joi.string().trim().min(1).max(100).custom(stripHtml).optional(),
+  state: Joi.string().trim().min(1).max(100).custom(stripHtml).optional(),
+  district: Joi.string().trim().max(100).custom(stripHtml).optional().allow(null, ''),
+  village: Joi.string().trim().max(100).custom(stripHtml).optional().allow(null, ''),
   address: Joi.string().trim().max(500).optional().allow(null, ''),
   experience_level: Joi.string()
     .valid('beginner', 'intermediate', 'experienced', 'expert')

@@ -27,14 +27,14 @@ export const env = {
     host: getEnv('DB_HOST', 'localhost'),
     port: parseInt(getEnv('DB_PORT', '5432'), 10),
     user: getEnv('DB_USER', 'agriai'),
-    password: getEnv('DB_PASSWORD', 'agriaipassword'),
+    password: requireEnv('DB_PASSWORD'),
     name: getEnv('DB_NAME', 'agri_ai_db'),
     poolMin: parseInt(getEnv('DB_POOL_MIN', '2'), 10),
     poolMax: parseInt(getEnv('DB_POOL_MAX', '10'), 10),
   },
 
   jwt: {
-    secret: getEnv('JWT_SECRET', 'dev-secret-change-in-production'),
+    secret: requireEnv('JWT_SECRET'),
     expiresIn: getEnv('JWT_EXPIRES_IN', '24h'),
   },
 
@@ -47,7 +47,7 @@ export const env = {
     origin: getEnv('CORS_ORIGIN', 'http://localhost:8081'),
   },
 
-  logLevel: getEnv('LOG_LEVEL', 'debug'),
+  logLevel: getEnv('LOG_LEVEL', process.env.NODE_ENV === 'production' ? 'warn' : 'debug'),
 
   isProduction: getEnv('NODE_ENV', 'development') === 'production',
   isDevelopment: getEnv('NODE_ENV', 'development') === 'development',

@@ -22,7 +22,10 @@ import type {
   WeatherResponse,
 } from '../types';
 
-const BASE_URL = 'http://10.0.2.2:3000/api/v1';
+// TODO: Use react-native-config for per-environment URL (HTTP only for local dev)
+const BASE_URL = __DEV__
+  ? 'http://10.0.2.2:3000/api/v1'
+  : 'https://api.agri-ai.app/api/v1'; // replace with actual prod URL
 
 export const agriApi = createApi({
   reducerPath: 'agriApi',
