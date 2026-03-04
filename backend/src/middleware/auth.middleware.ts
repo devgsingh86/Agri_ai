@@ -32,7 +32,7 @@ export async function authenticateJWT(
   }
 
   try {
-    const decoded = jwt.verify(token, env.jwt.secret) as jwt.JwtPayload;
+    const decoded = jwt.verify(token, env.jwt.secret, { algorithms: ['HS256'] }) as jwt.JwtPayload;
     (req as AuthenticatedRequest).user = {
       id: decoded.sub as string,
       email: decoded.email as string,

@@ -28,7 +28,7 @@ export async function register(
       .first();
 
     if (existing) {
-      throw new AppError('An account with this email already exists', 409);
+      throw new AppError('Registration could not be completed. Please check your details and try again.', 409);
     }
 
     const password_hash = await bcrypt.hash(password, 12);
@@ -46,7 +46,7 @@ export async function register(
     const token = jwt.sign(
       { sub: userId, email: email.toLowerCase() },
       env.jwt.secret,
-      { expiresIn: env.jwt.expiresIn } as jwt.SignOptions
+      { algorithm: 'HS256', expiresIn: env.jwt.expiresIn } as jwt.SignOptions
     );
 
     logger.info('User registered', { userId, email });
@@ -62,6 +62,10 @@ export async function register(
     next(err);
   }
 }
+
+// Constant-time dummy hash used to prevent user-enumeration via timing differences.
+// bcrypt.compare against this ensures the same ~100ms delay whether or not the user exists.
+const DUMMY_HASH = '$2b$12$invalidhashusedfortimingattackprevention000000000000000';
 
 /**
  * POST /api/v1/auth/login
@@ -82,19 +86,18 @@ export async function login(
       .where('email', email.toLowerCase())
       .first();
 
-    if (!user) {
-      throw new AppError('Invalid email or password', 401);
-    }
+    // Always run bcrypt to prevent timing-based user enumeration
+    const hashToCompare = user?.password_hash ?? DUMMY_HASH;
+    const isMatch = await bcrypt.compare(password, hashToCompare);
 
-    const isMatch = await bcrypt.compare(password, user.password_hash);
-    if (!isMatch) {
+    if (!user || !isMatch) {
       throw new AppError('Invalid email or password', 401);
     }
 
     const token = jwt.sign(
       { sub: user.id, email: user.email },
       env.jwt.secret,
-      { expiresIn: env.jwt.expiresIn } as jwt.SignOptions
+      { algorithm: 'HS256', expiresIn: env.jwt.expiresIn } as jwt.SignOptions
     );
 
     logger.info('User logged in', { userId: user.id, email: user.email });

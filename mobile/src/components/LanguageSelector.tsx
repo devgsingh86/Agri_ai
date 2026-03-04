@@ -15,7 +15,7 @@ import {
   StatusBar,
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
-import { setLanguage } from '../store/languageSlice';
+import { persistLanguage } from '../store/languageSlice';
 import { LANGUAGES } from '../i18n';
 import type { RootState, AppDispatch } from '../store';
 
@@ -27,7 +27,7 @@ export function LanguageSelector(): React.JSX.Element {
   const current = LANGUAGES.find((l) => l.code === selected) ?? LANGUAGES[0];
 
   const handleSelect = (code: string) => {
-    dispatch(setLanguage(code));
+    dispatch(persistLanguage(code));
     setVisible(false);
   };
 

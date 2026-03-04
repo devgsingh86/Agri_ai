@@ -1,4 +1,4 @@
-import express, { Application } from 'express';
+import express, { Application, Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
@@ -41,7 +41,7 @@ export function createApp(): Application {
   app.use(limiter);
 
   // Body parsing
-  app.use(express.json({ limit: '10mb' }));
+  app.use(express.json({ limit: '50kb' }));
   app.use(express.urlencoded({ extended: true }));
 
   // Trust proxy (for accurate IP behind load balancer)
@@ -61,6 +61,14 @@ export function createApp(): Application {
 
   // 404 handler — must come after all routes
   app.use(notFoundHandler);
+
+  // Malformed JSON body handler — converts body-parser parse errors to 400
+  app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+    if (err.type === 'entity.parse.failed') {
+      return res.status(400).json({ error: 'Bad Request', message: 'Invalid JSON in request body' });
+    }
+    next(err);
+  });
 
   // Global error handler — must be last
   app.use(errorHandler);
