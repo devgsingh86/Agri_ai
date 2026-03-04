@@ -273,7 +273,16 @@ export function ProfitabilityScreen(): React.JSX.Element {
   const [showFilters, setShowFilters] = useState(false);
   const [selected, setSelected] = useState<ProfitabilityCrop | null>(null);
 
-  const { data, isLoading, isError, refetch } = useGetProfitabilityQuery({ season, water, soil });
+  // Always fetch ALL crops once — filter client-side for instant tab switching
+  const { data, isLoading, isError, refetch } = useGetProfitabilityQuery({});
+
+  const filteredCrops = useMemo(() => {
+    if (!data?.crops) return [];
+    return data.crops
+      .filter((c) => season === 'all' || c.season === season)
+      .filter((c) => water  === 'all' || c.waterRequirement === water)
+      .filter((c) => soil   === 'all' || c.soilTypes.includes(soil as SoilType));
+  }, [data, season, water, soil]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -348,12 +357,12 @@ export function ProfitabilityScreen(): React.JSX.Element {
         <ScrollView style={styles.list} contentContainerStyle={styles.listContent}>
           <Text style={styles.listMeta}>
             📍 {data.state}  ·  {data.farmSizeAcres.toFixed(1)} {t('acres')}
-            {data.crops.length > 0 ? `  ·  ${data.crops.length} ${t('cropsFound')}` : ''}
+            {filteredCrops.length > 0 ? `  ·  ${filteredCrops.length} ${t('cropsFound')}` : ''}
           </Text>
-          {data.crops.length === 0 ? (
+          {filteredCrops.length === 0 ? (
             <Text style={styles.noResults}>{t('noMatchingCrops')}</Text>
           ) : (
-            data.crops.map((crop, i) => (
+            filteredCrops.map((crop, i) => (
               <CropCard key={crop.cropKey + crop.season} crop={crop} rank={i} onPress={() => setSelected(crop)} />
             ))
           )}
