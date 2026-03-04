@@ -1,0 +1,4 @@
+# Gradle build cache and outputs
+.gradle/
+build/
+local.properties
