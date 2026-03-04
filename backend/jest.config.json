@@ -1,0 +1,30 @@
+{
+  "preset": "ts-jest",
+  "testEnvironment": "node",
+  "rootDir": ".",
+  "testMatch": ["**/tests/**/*.test.ts"],
+  "moduleFileExtensions": ["ts", "js", "json"],
+  "transform": {
+    "^.+\\.ts$": ["ts-jest", {
+      "tsconfig": {
+        "target": "ES2020",
+        "module": "commonjs",
+        "strict": true,
+        "esModuleInterop": true,
+        "skipLibCheck": true
+      }
+    }]
+  },
+  "collectCoverageFrom": [
+    "src/**/*.ts",
+    "!src/index.ts",
+    "!src/config/database.ts"
+  ],
+  "coverageThreshold": {
+    "global": {
+      "lines": 60
+    }
+  },
+  "setupFiles": ["./tests/setup.ts"],
+  "testTimeout": 30000
+}

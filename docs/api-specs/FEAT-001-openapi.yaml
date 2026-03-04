@@ -1,0 +1,1170 @@
+openapi: 3.0.3
+info:
+  title: Agri AI - Farmer Onboarding API
+  description: |
+    REST API for farmer profile creation and onboarding workflow.
+    
+    ## Feature: FEAT-001 - Farmer Onboarding & Profile Creation
+    
+    This API enables farmers to:
+    - Create comprehensive farm profiles
+    - Manage their profile information
+    - Track onboarding progress
+    - Browse available crops for selection
+    
+    ## Authentication
+    All endpoints except `/crops` require JWT Bearer token authentication.
+    Tokens are obtained through FEAT-009 (Authentication System).
+    
+  version: 1.0.0
+  contact:
+    name: Agri AI API Support
+    email: api-support@agri-ai.com
+  license:
+    name: Proprietary
+
+servers:
+  - url: http://localhost:3000/api/v1
+    description: Local Development Server
+  - url: https://staging-api.agri-ai.com/api/v1
+    description: Staging Server (Azure)
+  - url: https://api.agri-ai.com/api/v1
+    description: Production Server (Azure)
+
+tags:
+  - name: Profile
+    description: Farm profile management operations
+  - name: Crops
+    description: Crop master data operations
+  - name: Onboarding
+    description: Onboarding progress tracking
+
+security:
+  - bearerAuth: []
+
+paths:
+  /profile:
+    post:
+      tags:
+        - Profile
+      summary: Create farm profile
+      description: |
+        Create a new farm profile for the authenticated user.
+        
+        **Business Rules:**
+        - One user can have only one farm profile (1:1 relationship)
+        - If profile already exists, returns 409 Conflict
+        - All required fields must be provided
+        - Farm size must be between 0.01 and 100,000 units
+        - Minimum 1 crop, maximum 5 crops
+        - Coordinates must be within valid ranges
+        
+      operationId: createFarmProfile
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateProfileRequest'
+            examples:
+              gps-location:
+                summary: Profile with GPS location
+                value:
+                  personalInfo:
+                    firstName: Rajesh
+                    lastName: Kumar
+                    phoneNumber: "+919876543210"
+                  farmDetails:
+                    farmSize: 5.5
+                    farmSizeUnit: hectares
+                    primaryCrops:
+                      - cropId: "550e8400-e29b-41d4-a716-446655440000"
+                        cropName: Wheat
+                        isCustom: false
+                      - cropName: Organic Tomatoes
+                        isCustom: true
+                  location:
+                    locationType: gps
+                    latitude: 28.6139
+                    longitude: 77.2090
+                    country: India
+                    state: Delhi
+                    district: New Delhi
+                    address: Connaught Place, New Delhi
+                  experience:
+                    level: intermediate
+                    yearsOfExperience: 4
+              manual-location:
+                summary: Profile with manual location entry
+                value:
+                  personalInfo:
+                    firstName: Maria
+                    lastName: Garcia
+                    phoneNumber: "+34612345678"
+                  farmDetails:
+                    farmSize: 10.25
+                    farmSizeUnit: acres
+                    primaryCrops:
+                      - cropId: "650e8400-e29b-41d4-a716-446655440001"
+                        cropName: Corn
+                        isCustom: false
+                  location:
+                    locationType: manual
+                    country: Spain
+                    state: Andalusia
+                    district: Seville
+                    village: Carmona
+                  experience:
+                    level: expert
+                    yearsOfExperience: 15
+      responses:
+        '201':
+          description: Farm profile created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProfileResponse'
+              example:
+                success: true
+                message: Farm profile created successfully
+                data:
+                  profileId: "7c9e6679-7425-40de-944b-e07fc1f90ae7"
+                  userId: "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+                  personalInfo:
+                    firstName: Rajesh
+                    lastName: Kumar
+                    phoneNumber: "+919876543210"
+                  farmDetails:
+                    farmSize: 5.5
+                    farmSizeUnit: hectares
+                    farmSizeInHectares: 5.5
+                    primaryCrops:
+                      - id: "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d"
+                        cropId: "550e8400-e29b-41d4-a716-446655440000"
+                        cropName: Wheat
+                        isCustom: false
+                      - id: "1b9d6bcd-bbfd-4b2d-9b5d-ab8dfbbd4bed"
+                        cropName: Organic Tomatoes
+                        isCustom: true
+                  location:
+                    locationType: gps
+                    latitude: 28.6139
+                    longitude: 77.2090
+                    country: India
+                    state: Delhi
+                    district: New Delhi
+                    village: null
+                    address: Connaught Place, New Delhi
+                  experience:
+                    level: intermediate
+                    yearsOfExperience: 4
+                  completeness: 92
+                  createdAt: "2024-03-02T12:00:00Z"
+                  updatedAt: "2024-03-02T12:00:00Z"
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '409':
+          $ref: '#/components/responses/ProfileConflict'
+        '429':
+          $ref: '#/components/responses/RateLimitExceeded'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    
+    get:
+      tags:
+        - Profile
+      summary: Get farm profile
+      description: |
+        Retrieve the farm profile for the authenticated user.
+        
+        **Business Rules:**
+        - Returns 404 if profile doesn't exist
+        - User can only access their own profile
+        
+      operationId: getFarmProfile
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Farm profile retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetProfileResponse'
+              example:
+                success: true
+                data:
+                  profileId: "7c9e6679-7425-40de-944b-e07fc1f90ae7"
+                  userId: "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+                  personalInfo:
+                    firstName: Rajesh
+                    lastName: Kumar
+                    phoneNumber: "+919876543210"
+                  farmDetails:
+                    farmSize: 5.5
+                    farmSizeUnit: hectares
+                    farmSizeInHectares: 5.5
+                    primaryCrops:
+                      - id: "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d"
+                        cropId: "550e8400-e29b-41d4-a716-446655440000"
+                        cropName: Wheat
+                        isCustom: false
+                  location:
+                    locationType: gps
+                    latitude: 28.6139
+                    longitude: 77.2090
+                    country: India
+                    state: Delhi
+                    district: New Delhi
+                    village: null
+                    address: Connaught Place, New Delhi
+                  experience:
+                    level: intermediate
+                    yearsOfExperience: 4
+                  completeness: 92
+                  createdAt: "2024-03-02T12:00:00Z"
+                  updatedAt: "2024-03-02T12:00:00Z"
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/ProfileNotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    
+    put:
+      tags:
+        - Profile
+      summary: Update farm profile (full update)
+      description: |
+        Update the complete farm profile for the authenticated user.
+        All fields must be provided (full replacement).
+        
+        **Business Rules:**
+        - Returns 404 if profile doesn't exist
+        - All validation rules from POST apply
+        - Updated timestamp is automatically set
+        
+      operationId: updateFarmProfile
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateProfileRequest'
+      responses:
+        '200':
+          description: Farm profile updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProfileResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/ProfileNotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    
+    patch:
+      tags:
+        - Profile
+      summary: Partially update farm profile
+      description: |
+        Update specific fields of the farm profile without replacing the entire profile.
+        Only include fields that need to be updated.
+        
+        **Business Rules:**
+        - Returns 404 if profile doesn't exist
+        - Validation applies to provided fields only
+        - Nested objects are merged (not replaced)
+        
+      operationId: partialUpdateFarmProfile
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchProfileRequest'
+            examples:
+              update-farm-size:
+                summary: Update only farm size
+                value:
+                  farmDetails:
+                    farmSize: 6.0
+              update-experience:
+                summary: Update experience level
+                value:
+                  experience:
+                    level: experienced
+                    yearsOfExperience: 8
+              update-crops:
+                summary: Update crop list
+                value:
+                  farmDetails:
+                    primaryCrops:
+                      - cropId: "550e8400-e29b-41d4-a716-446655440000"
+                        cropName: Wheat
+                        isCustom: false
+                      - cropName: Barley
+                        isCustom: false
+      responses:
+        '200':
+          description: Farm profile updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProfileResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/ProfileNotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    
+    delete:
+      tags:
+        - Profile
+      summary: Delete farm profile
+      description: |
+        Soft delete the farm profile (mark as deleted, retain for audit).
+        
+        **Business Rules:**
+        - Profile is not physically deleted from database
+        - `deleted_at` timestamp is set
+        - User account remains active
+        - User can create a new profile after deletion
+        - Deletion is logged for audit purposes
+        
+      operationId: deleteFarmProfile
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Farm profile deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Farm profile deleted successfully
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/ProfileNotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  
+  /crops:
+    get:
+      tags:
+        - Crops
+      summary: Get available crops
+      description: |
+        Retrieve list of predefined crops for selection during onboarding.
+        This is a public endpoint (no authentication required).
+        
+        **Features:**
+        - Search/filter by crop name
+        - Pagination support
+        - Returns crop metadata (scientific name, category, regions)
+        
+      operationId: getCrops
+      security: []
+      parameters:
+        - name: search
+          in: query
+          description: Filter crops by name (case-insensitive partial match)
+          required: false
+          schema:
+            type: string
+            example: wheat
+        - name: limit
+          in: query
+          description: Number of results to return
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 50
+            example: 10
+        - name: offset
+          in: query
+          description: Pagination offset
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+            example: 0
+      responses:
+        '200':
+          description: Crops retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CropsResponse'
+              example:
+                success: true
+                data:
+                  crops:
+                    - id: "550e8400-e29b-41d4-a716-446655440000"
+                      name: Wheat
+                      scientificName: Triticum aestivum
+                      category: Cereal
+                      commonRegions:
+                        - North America
+                        - Europe
+                        - Asia
+                    - id: "650e8400-e29b-41d4-a716-446655440001"
+                      name: Durum Wheat
+                      scientificName: Triticum durum
+                      category: Cereal
+                      commonRegions:
+                        - Mediterranean
+                        - North America
+                  total: 2
+                  limit: 10
+                  offset: 0
+        '400':
+          description: Bad request (invalid query parameters)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                success: false
+                error:
+                  code: INVALID_QUERY_PARAMS
+                  message: Invalid query parameters
+                  details:
+                    - field: limit
+                      message: Limit must be between 1 and 100
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  
+  /profile/progress:
+    get:
+      tags:
+        - Onboarding
+      summary: Get onboarding progress
+      description: |
+        Retrieve the user's onboarding progress for resuming incomplete onboarding.
+        
+        **Use Cases:**
+        - User exits onboarding before completion
+        - App is closed/crashes during onboarding
+        - User wants to continue from where they left off
+        
+        **Returns:**
+        - Current step and completed steps
+        - Partially saved data
+        - Completion status
+        
+      operationId: getOnboardingProgress
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Onboarding progress retrieved successfully
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/OnboardingProgressIncomplete'
+                  - $ref: '#/components/schemas/OnboardingProgressComplete'
+              examples:
+                incomplete:
+                  summary: Incomplete onboarding
+                  value:
+                    success: true
+                    data:
+                      isComplete: false
+                      currentStep: 3
+                      totalSteps: 5
+                      completedSteps: [1, 2]
+                      savedData:
+                        personalInfo:
+                          firstName: Rajesh
+                          lastName: Kumar
+                        farmDetails:
+                          farmSize: 5.5
+                          farmSizeUnit: hectares
+                complete:
+                  summary: Completed onboarding
+                  value:
+                    success: true
+                    data:
+                      isComplete: true
+                      completedAt: "2024-03-02T12:00:00Z"
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    
+    post:
+      tags:
+        - Onboarding
+      summary: Save onboarding progress
+      description: |
+        Save partial onboarding data for resuming later.
+        This endpoint is called automatically as user progresses through steps.
+        
+        **Business Rules:**
+        - Overwrites existing progress for the user
+        - Validates saved data structure
+        - Does not validate business rules (only structure)
+        
+      operationId: saveOnboardingProgress
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SaveProgressRequest'
+            example:
+              currentStep: 3
+              totalSteps: 5
+              savedData:
+                personalInfo:
+                  firstName: Rajesh
+                  lastName: Kumar
+                farmDetails:
+                  farmSize: 5.5
+                  farmSizeUnit: hectares
+      responses:
+        '200':
+          description: Progress saved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Onboarding progress saved successfully
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: |
+        JWT token obtained from authentication endpoints (FEAT-009).
+        
+        **Format:** `Authorization: Bearer <token>`
+        
+        **Token Expiry:** 24 hours
+        **Refresh Token:** Available for mobile apps
+
+  schemas:
+    PersonalInfo:
+      type: object
+      required:
+        - firstName
+        - lastName
+      properties:
+        firstName:
+          type: string
+          minLength: 1
+          maxLength: 50
+          pattern: '^[a-zA-Z\u00C0-\u017F''\- ]+$'
+          description: First name (accepts Unicode characters)
+          example: Rajesh
+        lastName:
+          type: string
+          minLength: 1
+          maxLength: 50
+          pattern: '^[a-zA-Z\u00C0-\u017F''\- ]+$'
+          description: Last name (accepts Unicode characters)
+          example: Kumar
+        phoneNumber:
+          type: string
+          pattern: '^\+[1-9]\d{1,14}$'
+          description: Phone number in E.164 format (optional)
+          example: "+919876543210"
+    
+    CropInput:
+      type: object
+      required:
+        - cropName
+      properties:
+        cropId:
+          type: string
+          format: uuid
+          description: UUID of predefined crop (optional if custom)
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        cropName:
+          type: string
+          minLength: 1
+          maxLength: 100
+          description: Name of the crop
+          example: Wheat
+        isCustom:
+          type: boolean
+          default: false
+          description: Whether this is a custom crop (not in master list)
+          example: false
+    
+    CropOutput:
+      allOf:
+        - $ref: '#/components/schemas/CropInput'
+        - type: object
+          required:
+            - id
+          properties:
+            id:
+              type: string
+              format: uuid
+              description: UUID of the farm_crop record
+              example: "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d"
+    
+    FarmDetails:
+      type: object
+      required:
+        - farmSize
+        - farmSizeUnit
+        - primaryCrops
+      properties:
+        farmSize:
+          type: number
+          format: double
+          minimum: 0.01
+          maximum: 100000
+          description: Farm size in selected unit
+          example: 5.5
+        farmSizeUnit:
+          type: string
+          enum: [hectares, acres]
+          description: Unit of measurement for farm size
+          example: hectares
+        primaryCrops:
+          type: array
+          minItems: 1
+          maxItems: 5
+          description: List of primary crops (1-5 crops)
+          items:
+            $ref: '#/components/schemas/CropInput'
+    
+    FarmDetailsOutput:
+      allOf:
+        - type: object
+          properties:
+            farmSize:
+              type: number
+              format: double
+              example: 5.5
+            farmSizeUnit:
+              type: string
+              enum: [hectares, acres]
+              example: hectares
+            farmSizeInHectares:
+              type: number
+              format: double
+              description: Farm size normalized to hectares (computed field)
+              example: 5.5
+            primaryCrops:
+              type: array
+              items:
+                $ref: '#/components/schemas/CropOutput'
+    
+    Location:
+      type: object
+      required:
+        - locationType
+        - country
+        - state
+        - district
+      properties:
+        locationType:
+          type: string
+          enum: [gps, manual]
+          description: How the location was captured
+          example: gps
+        latitude:
+          type: number
+          format: double
+          minimum: -90
+          maximum: 90
+          description: Latitude (required if locationType is 'gps')
+          example: 28.6139
+        longitude:
+          type: number
+          format: double
+          minimum: -180
+          maximum: 180
+          description: Longitude (required if locationType is 'gps')
+          example: 77.2090
+        country:
+          type: string
+          minLength: 2
+          maxLength: 100
+          description: Country name
+          example: India
+        state:
+          type: string
+          minLength: 2
+          maxLength: 100
+          description: State or province
+          example: Delhi
+        district:
+          type: string
+          minLength: 2
+          maxLength: 100
+          description: District or county
+          example: New Delhi
+        village:
+          type: string
+          minLength: 2
+          maxLength: 100
+          description: Village or town (optional)
+          example: Connaught Place
+        address:
+          type: string
+          maxLength: 500
+          description: Full address (resolved from GPS or user-entered)
+          example: Connaught Place, New Delhi
+    
+    Experience:
+      type: object
+      required:
+        - level
+      properties:
+        level:
+          type: string
+          enum: [beginner, intermediate, experienced, expert]
+          description: |
+            Experience level:
+            - beginner: 0-2 years
+            - intermediate: 3-5 years
+            - experienced: 6-10 years
+            - expert: 10+ years
+          example: intermediate
+        yearsOfExperience:
+          type: integer
+          minimum: 0
+          maximum: 100
+          description: Exact years of farming experience (optional)
+          example: 4
+    
+    CreateProfileRequest:
+      type: object
+      required:
+        - personalInfo
+        - farmDetails
+        - location
+        - experience
+      properties:
+        personalInfo:
+          $ref: '#/components/schemas/PersonalInfo'
+        farmDetails:
+          $ref: '#/components/schemas/FarmDetails'
+        location:
+          $ref: '#/components/schemas/Location'
+        experience:
+          $ref: '#/components/schemas/Experience'
+    
+    PatchProfileRequest:
+      type: object
+      description: Partial update - only include fields to update
+      properties:
+        personalInfo:
+          type: object
+          properties:
+            firstName:
+              type: string
+              minLength: 1
+              maxLength: 50
+            lastName:
+              type: string
+              minLength: 1
+              maxLength: 50
+            phoneNumber:
+              type: string
+              pattern: '^\+[1-9]\d{1,14}$'
+        farmDetails:
+          type: object
+          properties:
+            farmSize:
+              type: number
+              format: double
+              minimum: 0.01
+              maximum: 100000
+            farmSizeUnit:
+              type: string
+              enum: [hectares, acres]
+            primaryCrops:
+              type: array
+              minItems: 1
+              maxItems: 5
+              items:
+                $ref: '#/components/schemas/CropInput'
+        location:
+          type: object
+          properties:
+            locationType:
+              type: string
+              enum: [gps, manual]
+            latitude:
+              type: number
+              format: double
+            longitude:
+              type: number
+              format: double
+            country:
+              type: string
+            state:
+              type: string
+            district:
+              type: string
+            village:
+              type: string
+            address:
+              type: string
+        experience:
+          type: object
+          properties:
+            level:
+              type: string
+              enum: [beginner, intermediate, experienced, expert]
+            yearsOfExperience:
+              type: integer
+              minimum: 0
+              maximum: 100
+    
+    ProfileData:
+      type: object
+      properties:
+        profileId:
+          type: string
+          format: uuid
+          description: Unique profile identifier
+          example: "7c9e6679-7425-40de-944b-e07fc1f90ae7"
+        userId:
+          type: string
+          format: uuid
+          description: User identifier (from authentication)
+          example: "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+        personalInfo:
+          $ref: '#/components/schemas/PersonalInfo'
+        farmDetails:
+          $ref: '#/components/schemas/FarmDetailsOutput'
+        location:
+          $ref: '#/components/schemas/Location'
+        experience:
+          $ref: '#/components/schemas/Experience'
+        completeness:
+          type: integer
+          minimum: 0
+          maximum: 100
+          description: Profile completeness percentage
+          example: 92
+        createdAt:
+          type: string
+          format: date-time
+          description: Profile creation timestamp
+          example: "2024-03-02T12:00:00Z"
+        updatedAt:
+          type: string
+          format: date-time
+          description: Last update timestamp
+          example: "2024-03-02T12:00:00Z"
+    
+    ProfileResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: Farm profile created successfully
+        data:
+          $ref: '#/components/schemas/ProfileData'
+    
+    GetProfileResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          $ref: '#/components/schemas/ProfileData'
+    
+    Crop:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Crop identifier
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        name:
+          type: string
+          description: Common crop name
+          example: Wheat
+        scientificName:
+          type: string
+          description: Scientific/botanical name
+          example: Triticum aestivum
+        category:
+          type: string
+          description: Crop category
+          example: Cereal
+        commonRegions:
+          type: array
+          items:
+            type: string
+          description: Common growing regions
+          example: ["North America", "Europe", "Asia"]
+    
+    CropsResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: object
+          properties:
+            crops:
+              type: array
+              items:
+                $ref: '#/components/schemas/Crop'
+            total:
+              type: integer
+              description: Total number of crops matching the filter
+              example: 2
+            limit:
+              type: integer
+              description: Result limit
+              example: 10
+            offset:
+              type: integer
+              description: Pagination offset
+              example: 0
+    
+    OnboardingProgressIncomplete:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: object
+          properties:
+            isComplete:
+              type: boolean
+              example: false
+            currentStep:
+              type: integer
+              minimum: 1
+              maximum: 5
+              description: Current onboarding step
+              example: 3
+            totalSteps:
+              type: integer
+              example: 5
+            completedSteps:
+              type: array
+              items:
+                type: integer
+              description: List of completed step numbers
+              example: [1, 2]
+            savedData:
+              type: object
+              description: Partially saved onboarding data
+              additionalProperties: true
+    
+    OnboardingProgressComplete:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: object
+          properties:
+            isComplete:
+              type: boolean
+              example: true
+            completedAt:
+              type: string
+              format: date-time
+              description: Onboarding completion timestamp
+              example: "2024-03-02T12:00:00Z"
+    
+    SaveProgressRequest:
+      type: object
+      required:
+        - currentStep
+        - totalSteps
+        - savedData
+      properties:
+        currentStep:
+          type: integer
+          minimum: 1
+          maximum: 5
+          description: Current step in onboarding
+          example: 3
+        totalSteps:
+          type: integer
+          example: 5
+        savedData:
+          type: object
+          description: Partial profile data to save
+          additionalProperties: true
+    
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+              description: Machine-readable error code
+              example: VALIDATION_ERROR
+            message:
+              type: string
+              description: Human-readable error message
+              example: Invalid input data
+            details:
+              type: array
+              items:
+                type: object
+                properties:
+                  field:
+                    type: string
+                    description: Field name that caused the error
+                    example: farmDetails.farmSize
+                  message:
+                    type: string
+                    description: Specific error message for this field
+                    example: Farm size must be between 0.01 and 100,000
+            requestId:
+              type: string
+              format: uuid
+              description: Request ID for support tracking
+              example: "req-123e4567-e89b-12d3-a456-426614174000"
+
+  responses:
+    ValidationError:
+      description: Validation error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            success: false
+            error:
+              code: VALIDATION_ERROR
+              message: Invalid input data
+              details:
+                - field: farmDetails.farmSize
+                  message: Farm size must be between 0.01 and 100,000
+                - field: personalInfo.firstName
+                  message: First name is required and must be 1-50 characters
+    
+    Unauthorized:
+      description: Unauthorized - Missing or invalid authentication
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            success: false
+            error:
+              code: UNAUTHORIZED
+              message: Authentication required. Please log in.
+    
+    ProfileNotFound:
+      description: Profile not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            success: false
+            error:
+              code: PROFILE_NOT_FOUND
+              message: No farm profile found for this user. Please complete onboarding.
+    
+    ProfileConflict:
+      description: Profile already exists
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            success: false
+            error:
+              code: PROFILE_EXISTS
+              message: A farm profile already exists for this user. Use PUT /api/v1/profile to update.
+    
+    RateLimitExceeded:
+      description: Rate limit exceeded
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/ErrorResponse'
+              - type: object
+                properties:
+                  error:
+                    properties:
+                      retryAfter:
+                        type: integer
+                        description: Seconds until rate limit resets
+                        example: 60
+          example:
+            success: false
+            error:
+              code: RATE_LIMIT_EXCEEDED
+              message: Too many requests. Please try again in 60 seconds.
+              retryAfter: 60
+    
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            success: false
+            error:
+              code: INTERNAL_ERROR
+              message: An unexpected error occurred. Please try again later.
+              requestId: "req-123e4567-e89b-12d3-a456-426614174000"

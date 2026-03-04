@@ -1,0 +1,25 @@
+version: '3.9'
+
+services:
+  postgres:
+    image: postgis/postgis:16-3.4
+    container_name: agri_ai_postgres
+    environment:
+      POSTGRES_USER: agriai
+      POSTGRES_PASSWORD: agriaipassword
+      POSTGRES_DB: agri_ai_db
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U agriai -d agri_ai_db']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+    name: agri_ai_postgres_data
