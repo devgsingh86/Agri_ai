@@ -12,6 +12,7 @@ import {
   TouchableOpacity,
   ActivityIndicator,
 } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { useGetWeatherQuery } from '../services/api';
 import type { AdvisoryType, WeatherDay } from '../types';
 
@@ -40,11 +41,11 @@ function formatDate(dateStr: string): string {
 }
 
 /** Single day column */
-function DayColumn({ day, isToday }: { day: WeatherDay; isToday: boolean }) {
+function DayColumn({ day, isToday, t }: { day: WeatherDay; isToday: boolean; t: (key: string) => string }) {
   return (
     <View style={[styles.dayCol, isToday && styles.dayColToday]}>
       <Text style={[styles.dayLabel, isToday && styles.dayLabelToday]}>
-        {isToday ? 'Today' : formatDate(day.date).split(' ')[0]}
+        {isToday ? t('today') : formatDate(day.date).split(' ')[0]}
       </Text>
       <Text style={styles.dayIcon}>{day.icon}</Text>
       <Text style={[styles.tempMax, isToday && styles.tempMaxToday]}>{day.tempMax}°</Text>
@@ -59,16 +60,17 @@ function DayColumn({ day, isToday }: { day: WeatherDay; isToday: boolean }) {
 }
 
 export function WeatherForecastCard(): React.JSX.Element {
+  const { t } = useTranslation();
   const { data: weather, isLoading, isError, refetch } = useGetWeatherQuery();
   const [showAllAdvisories, setShowAllAdvisories] = useState(false);
 
   if (isLoading) {
     return (
       <View style={styles.card}>
-        <Text style={styles.cardTitle}>🌤️ Weather Forecast</Text>
+        <Text style={styles.cardTitle}>{t('weekForecast')}</Text>
         <View style={styles.loadingRow}>
           <ActivityIndicator size="small" color="#2D7A3A" />
-          <Text style={styles.loadingText}>Fetching forecast...</Text>
+          <Text style={styles.loadingText}>{t('fetchingForecast')}</Text>
         </View>
       </View>
     );
@@ -77,10 +79,10 @@ export function WeatherForecastCard(): React.JSX.Element {
   if (isError || !weather) {
     return (
       <View style={styles.card}>
-        <Text style={styles.cardTitle}>🌤️ Weather Forecast</Text>
-        <Text style={styles.errorText}>Could not load forecast.</Text>
+        <Text style={styles.cardTitle}>{t('weekForecast')}</Text>
+        <Text style={styles.errorText}>{t('couldNotLoadForecast')}</Text>
         <TouchableOpacity onPress={refetch} style={styles.retryBtn}>
-          <Text style={styles.retryText}>Retry</Text>
+          <Text style={styles.retryText}>{t('retry')}</Text>
         </TouchableOpacity>
       </View>
     );
@@ -93,7 +95,7 @@ export function WeatherForecastCard(): React.JSX.Element {
     <View style={styles.card}>
       {/* Header */}
       <View style={styles.headerRow}>
-        <Text style={styles.cardTitle}>🌤️ 7-Day Forecast</Text>
+        <Text style={styles.cardTitle}>{t('weekForecast')}</Text>
         <Text style={styles.timezone}>{weather.timezone.replace('_', ' ')}</Text>
       </View>
 
@@ -121,14 +123,14 @@ export function WeatherForecastCard(): React.JSX.Element {
         contentContainerStyle={styles.dayStripContent}
       >
         {weather.days.map((day, i) => (
-          <DayColumn key={day.date} day={day} isToday={day.date === todayStr || i === 0} />
+          <DayColumn key={day.date} day={day} isToday={day.date === todayStr || i === 0} t={t} />
         ))}
       </ScrollView>
 
       {/* Crop advisories */}
       {weather.advisories.length > 0 && (
         <View style={styles.advisorySection}>
-          <Text style={styles.advisoryHeading}>🌾 Crop Advisories</Text>
+          <Text style={styles.advisoryHeading}>{t('cropAdvisories')}</Text>
           {visibleAdvisories.map((a, i) => (
             <View
               key={i}
@@ -148,8 +150,8 @@ export function WeatherForecastCard(): React.JSX.Element {
             >
               <Text style={styles.showMoreText}>
                 {showAllAdvisories
-                  ? 'Show less ▲'
-                  : `Show ${weather.advisories.length - 2} more ▼`}
+                  ? t('showLess')
+                  : t('showMore', { count: weather.advisories.length - 2 })}
               </Text>
             </TouchableOpacity>
           )}

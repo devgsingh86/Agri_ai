@@ -12,17 +12,20 @@ import {
   TouchableOpacity,
   RefreshControl,
 } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { useGetProfileQuery } from '../../services/api';
 import { WeatherForecastCard } from '../../components/WeatherForecastCard';
+import { LanguageSelector } from '../../components/LanguageSelector';
 
 export function DashboardScreen(): React.JSX.Element {
+  const { t } = useTranslation();
   const { data: profile, isLoading, isError, refetch, isFetching } = useGetProfileQuery();
 
   if (isLoading) {
     return (
       <View style={styles.centered}>
         <ActivityIndicator size="large" color="#2D7A3A" />
-        <Text style={styles.loadingText}>Loading your dashboard...</Text>
+        <Text style={styles.loadingText}>{t('loadingDashboard')}</Text>
       </View>
     );
   }
@@ -31,9 +34,9 @@ export function DashboardScreen(): React.JSX.Element {
     return (
       <View style={styles.centered}>
         <Text style={styles.errorEmoji}>⚠️</Text>
-        <Text style={styles.errorTitle}>Could not load profile</Text>
+        <Text style={styles.errorTitle}>{t('couldNotLoadProfile')}</Text>
         <TouchableOpacity style={styles.retryButton} onPress={refetch}>
-          <Text style={styles.retryText}>Retry</Text>
+          <Text style={styles.retryText}>{t('retry')}</Text>
         </TouchableOpacity>
       </View>
     );
@@ -56,19 +59,20 @@ export function DashboardScreen(): React.JSX.Element {
         />
       }
     >
-      {/* Greeting */}
+      {/* Greeting row with language selector */}
       <View style={styles.greeting}>
         <Text style={styles.greetingEmoji}>🌾</Text>
-        <View>
-          <Text style={styles.greetingTitle}>Welcome back,</Text>
+        <View style={styles.greetingText}>
+          <Text style={styles.greetingTitle}>{t('welcomeBack')}</Text>
           <Text style={styles.greetingName}>{firstName}!</Text>
         </View>
+        <LanguageSelector />
       </View>
 
       {/* Completeness card */}
       <View style={styles.card}>
         <View style={styles.cardHeaderRow}>
-          <Text style={styles.cardTitle}>Profile Completeness</Text>
+          <Text style={styles.cardTitle}>{t('profileCompleteness')}</Text>
           <Text style={styles.completenessPercent}>{completeness}%</Text>
         </View>
         <View style={styles.progressBarBg}>
@@ -77,25 +81,23 @@ export function DashboardScreen(): React.JSX.Element {
           />
         </View>
         {completeness < 100 && (
-          <Text style={styles.completenessHint}>
-            Complete your profile to get personalised recommendations.
-          </Text>
+          <Text style={styles.completenessHint}>{t('completeProfileHint')}</Text>
         )}
       </View>
 
       {/* Farm summary cards */}
-      <Text style={styles.sectionLabel}>Your Farm at a Glance</Text>
+      <Text style={styles.sectionLabel}>{t('farmAtGlance')}</Text>
 
       <View style={styles.statsRow}>
         <View style={styles.statCard}>
           <Text style={styles.statIcon}>📐</Text>
           <Text style={styles.statValue}>{farmSizeDisplay}</Text>
-          <Text style={styles.statLabel}>Farm Size</Text>
+          <Text style={styles.statLabel}>{t('farmSize')}</Text>
         </View>
         <View style={styles.statCard}>
           <Text style={styles.statIcon}>🌱</Text>
           <Text style={styles.statValue}>{profile.crops?.length ?? 0}</Text>
-          <Text style={styles.statLabel}>Crops</Text>
+          <Text style={styles.statLabel}>{t('crops')}</Text>
         </View>
         <View style={styles.statCard}>
           <Text style={styles.statIcon}>🏅</Text>
@@ -105,19 +107,19 @@ export function DashboardScreen(): React.JSX.Element {
                 profile.experience_level.slice(1)
               : '—'}
           </Text>
-          <Text style={styles.statLabel}>Level</Text>
+          <Text style={styles.statLabel}>{t('level')}</Text>
         </View>
       </View>
 
       {/* Crops detail */}
       <View style={styles.card}>
-        <Text style={styles.cardTitle}>Crops Being Grown</Text>
+        <Text style={styles.cardTitle}>{t('cropsBeingGrown')}</Text>
         <Text style={styles.cropsList}>{cropNames}</Text>
       </View>
 
       {/* Location */}
       <View style={styles.card}>
-        <Text style={styles.cardTitle}>📍 Farm Location</Text>
+        <Text style={styles.cardTitle}>{t('farmLocation')}</Text>
         <Text style={styles.locationText}>
           {[profile.village, profile.district, profile.state, profile.country]
             .filter(Boolean)
@@ -166,6 +168,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   greetingEmoji: { fontSize: 44 },
+  greetingText: { flex: 1 },
   greetingTitle: { fontSize: 14, color: '#888' },
   greetingName: { fontSize: 26, fontWeight: '700', color: '#1A1A1A' },
   card: {

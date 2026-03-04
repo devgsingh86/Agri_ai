@@ -5,11 +5,13 @@ import { configureStore } from '@reduxjs/toolkit';
 import { agriApi } from '../services/api';
 import onboardingReducer from './onboardingSlice';
 import authReducer from './authSlice';
+import languageReducer from './languageSlice';
 
 export const store = configureStore({
   reducer: {
     auth: authReducer,
     onboarding: onboardingReducer,
+    language: languageReducer,
     [agriApi.reducerPath]: agriApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
