@@ -82,6 +82,9 @@ const CROP_COMMODITY_MAP: Record<string, string> = {
   crop_banana:     'Banana',
 };
 
+/** Exported set of valid crop keys for controller-level input validation. */
+export const VALID_CROP_KEYS = new Set(Object.keys(CROP_COMMODITY_MAP));
+
 // ─── Realistic mock data ───────────────────────────────────────────────────────
 
 /**
@@ -419,8 +422,9 @@ export async function createAlert(
   return rowToAlert(row);
 }
 
-export async function deleteAlert(userId: string, alertId: string): Promise<void> {
-  await db('mandi_alerts').where({ id: alertId, user_id: userId }).delete();
+export async function deleteAlert(userId: string, alertId: string): Promise<boolean> {
+  const count = await db('mandi_alerts').where({ id: alertId, user_id: userId }).delete();
+  return count > 0;
 }
 
 function rowToAlert(r: Record<string, unknown>): MandiAlert {

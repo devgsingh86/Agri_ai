@@ -38,6 +38,16 @@ export function errorHandler(
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   _next: NextFunction
 ): void {
+  // Handle body-parser specific errors before generic handling
+  if ((err as any).type === 'entity.too.large') {
+    res.status(413).json({ error: 'Payload Too Large', message: 'Request body exceeds the 50 KB limit.' });
+    return;
+  }
+  if ((err as any).type === 'entity.parse.failed') {
+    res.status(400).json({ error: 'Bad Request', message: 'Request body is not valid JSON.' });
+    return;
+  }
+
   const statusCode = err instanceof AppError ? err.statusCode : 500;
   const isOperational = err instanceof AppError ? err.isOperational : false;
 

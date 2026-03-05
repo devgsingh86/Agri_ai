@@ -27,15 +27,20 @@ export function createApp(): Application {
     })
   );
 
-  // Rate limiting
+  // Rate limiting — keyed by authenticated userId when available, falling back to IP
   const limiter = rateLimit({
     windowMs: env.rateLimit.windowMs,
     max: env.rateLimit.max,
     standardHeaders: true,
     legacyHeaders: false,
+    keyGenerator: (req) => {
+      // Use userId from JWT payload if auth middleware has run, else IP
+      const user = (req as any).user;
+      return (user?.id as string | undefined) ?? req.ip ?? 'unknown';
+    },
     message: {
       error: 'Too Many Requests',
-      message: 'Too many requests from this IP, please try again later.',
+      message: 'Too many requests, please try again later.',
     },
   });
   app.use(limiter);
