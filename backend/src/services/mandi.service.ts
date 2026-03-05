@@ -13,11 +13,13 @@ import { Knex } from 'knex';
 import { getDb } from '../config/database';
 
 /** Lazy accessor so we don't call getDb() at module load time (before initDatabase). */
-const db = new Proxy({} as ReturnType<typeof getDb>, {
-  get(_t, prop) {
-    return (getDb() as any)[prop];
-  },
-});
+const db = new Proxy(
+  (() => {}) as unknown as ReturnType<typeof getDb>,
+  {
+    get: (_t, prop) => (getDb() as any)[prop],
+    apply: (_t, _this, args) => (getDb() as any)(...args),
+  }
+);
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
