@@ -201,6 +201,7 @@ export type OnboardingStackParamList = {
 export type AppTabParamList = {
   Dashboard: undefined;
   Calculator: undefined;
+  Mandi: undefined;
   Profile: undefined;
 };
 
@@ -283,4 +284,74 @@ export interface ProfitabilityQueryArgs {
   season?: ProfitabilitySeason;
   water?: WaterRequirement | 'all';
   soil?: SoilType | 'all';
+}
+
+// ── Mandi Price Analytics ────────────────────────────────────────────────────
+
+export interface MandiPrice {
+  id?: string;
+  cropKey: string;
+  commodity: string;
+  state: string;
+  district: string;
+  market: string;
+  variety: string;
+  minPrice: number;
+  maxPrice: number;
+  modalPrice: number;
+  priceDate: string;
+}
+
+export interface PriceHistoryPoint {
+  date: string;
+  minPrice: number;
+  maxPrice: number;
+  modalPrice: number;
+  market: string;
+}
+
+export interface MandiAlert {
+  id: string;
+  userId: string;
+  cropKey: string;
+  targetPrice: number;
+  direction: 'above' | 'below';
+  isActive: boolean;
+  triggeredAt: string | null;
+  createdAt: string;
+}
+
+export interface MandiPricesResponse {
+  data: {
+    state: string;
+    cropKeys: string[];
+    prices: MandiPrice[];
+    syncedAt: string;
+  };
+}
+
+export interface MandiHistoryResponse {
+  data: {
+    state: string;
+    cropKey: string;
+    history: PriceHistoryPoint[];
+  };
+}
+
+export interface MandiComparisonResponse {
+  data: {
+    state: string;
+    cropKey: string;
+    mandis: MandiPrice[];
+  };
+}
+
+export interface MandiAlertsResponse {
+  data: MandiAlert[];
+}
+
+export interface CreateAlertRequest {
+  cropKey: string;
+  targetPrice: number;
+  direction: 'above' | 'below';
 }

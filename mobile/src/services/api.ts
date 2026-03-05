@@ -23,6 +23,14 @@ import type {
   ProfitabilityResult,
   ProfitabilityResponse,
   ProfitabilityQueryArgs,
+  MandiPrice,
+  PriceHistoryPoint,
+  MandiAlert,
+  MandiPricesResponse,
+  MandiHistoryResponse,
+  MandiComparisonResponse,
+  MandiAlertsResponse,
+  CreateAlertRequest,
 } from '../types';
 
 // TODO: Use react-native-config for per-environment URL (HTTP only for local dev)
@@ -43,7 +51,7 @@ export const agriApi = createApi({
       return headers;
     },
   }),
-  tagTypes: ['Profile', 'Progress', 'Weather', 'Profitability'],
+  tagTypes: ['Profile', 'Progress', 'Weather', 'Profitability', 'Mandi', 'MandiAlerts'],
   endpoints: (builder) => ({
     // ─── Auth ──────────────────────────────────────────────────────────────
     register: builder.mutation<AuthResponse, RegisterRequest>({
@@ -152,6 +160,41 @@ export const agriApi = createApi({
       transformResponse: (response: ProfitabilityResponse) => response.data,
       providesTags: ['Profitability'],
     }),
+
+    // ─── Mandi Price Analytics ─────────────────────────────────────────────────
+    getMandiPrices: builder.query<MandiPricesResponse['data'], { crops?: string }>({
+      query: ({ crops } = {}) => crops ? `/mandi/prices?crops=${crops}` : '/mandi/prices',
+      transformResponse: (response: MandiPricesResponse) => response.data,
+      providesTags: ['Mandi'],
+    }),
+
+    getMandiHistory: builder.query<MandiHistoryResponse['data'], string>({
+      query: (cropKey) => `/mandi/history/${cropKey}`,
+      transformResponse: (response: MandiHistoryResponse) => response.data,
+      providesTags: ['Mandi'],
+    }),
+
+    getMandiComparison: builder.query<MandiComparisonResponse['data'], string>({
+      query: (cropKey) => `/mandi/comparison/${cropKey}`,
+      transformResponse: (response: MandiComparisonResponse) => response.data,
+      providesTags: ['Mandi'],
+    }),
+
+    getMandiAlerts: builder.query<MandiAlert[], void>({
+      query: () => '/mandi/alerts',
+      transformResponse: (response: MandiAlertsResponse) => response.data,
+      providesTags: ['MandiAlerts'],
+    }),
+
+    createMandiAlert: builder.mutation<MandiAlert, CreateAlertRequest>({
+      query: (body) => ({ url: '/mandi/alerts', method: 'POST', body }),
+      invalidatesTags: ['MandiAlerts'],
+    }),
+
+    deleteMandiAlert: builder.mutation<void, string>({
+      query: (id) => ({ url: `/mandi/alerts/${id}`, method: 'DELETE' }),
+      invalidatesTags: ['MandiAlerts'],
+    }),
   }),
 });
 
@@ -168,4 +211,10 @@ export const {
   useSaveProgressMutation,
   useGetWeatherQuery,
   useGetProfitabilityQuery,
+  useGetMandiPricesQuery,
+  useGetMandiHistoryQuery,
+  useGetMandiComparisonQuery,
+  useGetMandiAlertsQuery,
+  useCreateMandiAlertMutation,
+  useDeleteMandiAlertMutation,
 } = agriApi;

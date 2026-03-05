@@ -32,6 +32,7 @@ import { ReviewScreen } from '../screens/onboarding/ReviewScreen';
 import { DashboardScreen } from '../screens/app/DashboardScreen';
 import { ProfileScreen } from '../screens/app/ProfileScreen';
 import { ProfitabilityScreen } from '../screens/app/ProfitabilityScreen';
+import { MandiScreen } from '../screens/app/MandiScreen';
 
 import type {
   AuthStackParamList,
@@ -142,6 +143,17 @@ function AppNavigator(): React.JSX.Element {
           tabBarLabel: 'Calculator',
           tabBarIcon: ({ color }) => (
             <TabIcon label="📊" color={color} />
+          ),
+        }}
+      />
+      <AppTab.Screen
+        name="Mandi"
+        component={MandiScreen}
+        options={{
+          title: 'Mandi Prices',
+          tabBarLabel: 'Mandi',
+          tabBarIcon: ({ color }) => (
+            <TabIcon label="📈" color={color} />
           ),
         }}
       />

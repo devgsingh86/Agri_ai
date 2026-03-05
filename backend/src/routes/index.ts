@@ -4,6 +4,7 @@ import cropsRoutes from './crops.routes';
 import authRoutes from './onboarding.routes';
 import weatherRoutes from './weather.routes';
 import profitabilityRoutes from './profitability.routes';
+import mandiRoutes from './mandi.routes';
 
 const router = Router();
 
@@ -26,5 +27,6 @@ router.use('/crops', cropsRoutes);
 router.use('/auth', authRoutes);
 router.use('/weather', weatherRoutes);
 router.use('/profitability', profitabilityRoutes);
+router.use('/mandi', mandiRoutes);
 
 export default router;
