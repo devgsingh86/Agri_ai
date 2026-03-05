@@ -3,7 +3,7 @@ import type { Knex } from 'knex';
 export async function up(knex: Knex): Promise<void> {
   // Cached Mandi price data from AGMARKNET
   await knex.schema.createTable('mandi_prices', (t) => {
-    t.string('id').primary().defaultTo(knex.raw('gen_random_uuid()'));
+    t.uuid('id').primary().defaultTo(knex.raw('gen_random_uuid()'));
     t.string('crop_key').notNullable();        // e.g. "crop_wheat"
     t.string('commodity').notNullable();       // original API commodity name
     t.string('state').notNullable();
@@ -22,8 +22,8 @@ export async function up(knex: Knex): Promise<void> {
 
   // User-defined price alerts
   await knex.schema.createTable('mandi_alerts', (t) => {
-    t.string('id').primary().defaultTo(knex.raw('gen_random_uuid()'));
-    t.string('user_id').notNullable().references('id').inTable('users').onDelete('CASCADE');
+    t.uuid('id').primary().defaultTo(knex.raw('gen_random_uuid()'));
+    t.uuid('user_id').notNullable().references('id').inTable('users').onDelete('CASCADE');
     t.string('crop_key').notNullable();
     t.decimal('target_price', 10, 2).notNullable();
     t.enum('direction', ['above', 'below']).notNullable().defaultTo('above');
