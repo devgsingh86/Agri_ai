@@ -15,6 +15,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useGetProgressQuery } from '../../services/api';
 import { hydrateFromProgress, setCurrentStep } from '../../store/onboardingSlice';
 import { useAppDispatch } from '../../hooks/useRedux';
+import { useAuth } from '../../hooks/useAuth';
 import { useTranslation } from 'react-i18next';
 import type { OnboardingStackParamList, OnboardingState } from '../../types';
 
@@ -24,6 +25,7 @@ export function WelcomeScreen(): React.JSX.Element {
   const navigation = useNavigation<WelcomeNav>();
   const dispatch = useAppDispatch();
   const { t } = useTranslation();
+  const { logout } = useAuth();
   const [resumeStep, setResumeStep] = useState<number | null>(null);
 
   const { data: progress, isLoading, isError } = useGetProgressQuery();
@@ -122,6 +124,15 @@ export function WelcomeScreen(): React.JSX.Element {
             {resumeStep && resumeStep > 1 ? t('startFresh') : `${t('getStarted')} →`}
           </Text>
         </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.loginLink}
+          onPress={logout}
+          accessibilityRole="button"
+          accessibilityLabel="Sign in to existing account"
+        >
+          <Text style={styles.loginLinkText}>Already have an account? <Text style={styles.loginLinkBold}>Sign In</Text></Text>
+        </TouchableOpacity>
       </View>
     </View>
   );
@@ -219,6 +230,18 @@ const styles = StyleSheet.create({
   startText: {
     fontSize: 17,
     color: '#FFFFFF',
+    fontWeight: '700',
+  },
+  loginLink: {
+    alignItems: 'center',
+    paddingVertical: 10,
+  },
+  loginLinkText: {
+    fontSize: 14,
+    color: '#666',
+  },
+  loginLinkBold: {
+    color: '#2D7A3A',
     fontWeight: '700',
   },
 });
